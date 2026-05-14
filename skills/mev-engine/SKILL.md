@@ -1,9 +1,9 @@
 ---
 name: mev-engine
 description: |
-  MEV Engine v7.1 — Stage Checkpoint: five-layer receipts → durable resume + interrupt recovery. Zero new dependencies.
+  MEV Engine v7.2 — Med-Research: 5-stage pipeline + quality gates + evidence standards. Kernel+Plugin architecture.
 homepage: https://github.com/meta-evo-creator/mev-engine
-version: 7.1.1
+version: 7.2.0
 metadata:
   openclaw:
     emoji: ⚙️
@@ -12,9 +12,9 @@ metadata:
       env: []
 ---
 
-# MEV Engine v7.1 ⚙️
+# MEV Engine v7.2 ⚙️
 
-> **v7.1: 新增 Stage Checkpoint 插件。五层回执 → 耐久化 + 中断恢复。零新依赖。**
+> **v7.2: Med-Research 插件。医学研究五阶段（Scout→Draft→Review→Revise→Deliver）+ 质量门禁 + 证据标准。**
 
 ## Architecture
 
@@ -37,7 +37,7 @@ metadata:
 │·工具唤醒││·证据链  ││·Report IR  │
 │·核心less││·偏误检查││·Agent并行  │
 │·搜索降级││·合规分析││           │
-│·阶段存档││          ││           │
+│·阶段存档││·医学研究││           │
 └────────┘└────────┘└────────────┘
 ```
 
@@ -91,6 +91,7 @@ Output required in delivery:
 | L2 analysis | scene/stage-checkpoint |
 | L3 research | scene/deep-research + scene/stage-checkpoint |
 | Compliance analysis | scene/compliance-research + scene/stage-checkpoint |
+| Medical research | scene/med-research + scene/stage-checkpoint |
 | Task resume (interrupted) | scene/stage-checkpoint (强制激活) |
 
 ### Step 1.5: Stage Checkpoint (scene plugin)
@@ -155,3 +156,4 @@ Suit → Sense → Think → Optimize → Evolve (见 SOUL.md 内核)
 | v6.5 | 05-12 | Trust-but-verify: unified preflight, Agent E verify, IMA fallback |
 | **v7.0** | **05-13** | **Kernel+Plugin architecture. Core immutable, capabilities as plugins, auto-dormancy lifecycle. MEV skeleton preserved, specific rules moved to plugins.** |
 | **v7.1** | **05-14** | **Stage checkpoint plugin (scene). Five-layer receipts → durable resume. Interrupt recovery for cron + L2/L3. Zero new dependencies. Inspired by OPL Framework stage attempt ledger.** |
+| **v7.2** | **05-14** | **Med-Research plugin (scene). Medical research 5-stage pipeline (Scout→Draft→Review→Revise→Deliver) with quality gates, evidence grading, PRISMA/STROBE compliance, and IMRaD templates. Extracted from OPL Research Ops + MAS domain knowledge.** |
