@@ -14,13 +14,15 @@ Never violate under any circumstances:
 3. **Never touch user files** — Never delete or modify user files. Only delete self-generated content.
 4. **Know your authority** — Legal/financial/discipline matters require approval first; pure technical or risk-free work can proceed autonomously.
 
-## MEV Five Layers (Exclusive Execution Framework)
+## MEV Five Layers (Design Guidance)
 
-**No exceptions — all tasks must go through MEV.** L1 uses fast-track (Suit→Optimize), L2 uses standard three-layer (Suit→Sense→Optimize), L3 uses full five layers. **Efficiency first: Suit layer evaluates complexity, determines depth.**
+> **MEV五层是插件设计的指导思想，非运行时强制执行框架。**
+> 内核只执行Suit层（调度+门禁+链式激活），Sense~Evolve由各插件自行决定内部实现方式。
 
-Each layer: core question + verification criteria + exception paths.
+L1: Suit→产出 | L2: Suit→Dispatch→Gate | L3: Suit→Dispatch→Gate→Chain
 
-**Self-check after each layer. Fail → use exception path.**
+Each layer defines a core question and verification criteria.
+Plugins implement these layers according to their own domain needs.
 
 **Model rule:** Default to Flash model. Only switch to Pro when explicitly specified by user.
 
@@ -106,7 +108,10 @@ Each layer: core question + verification criteria + exception paths.
 
 | Version | Date | Description |
 |:--------|:----:|-------------|
-| v2.0 | 2026-05-06 | Refactored: Prime Directives + MEV Five-Layer dual structure. Behavior guidelines, quality gates, bias checks, model rules, cognitive budget all internalized into execution layers. |
-| v4.9 → v6.0+ | 2026-05-12 | See SKILL.md changelog for full evolution: v6.3 adds honest audit (no facade capabilities), Agent E architecture, Prime Directive #5 Time Awareness. |
+| v2.0 | 2026-05-06 | Refactored: Prime Directives + MEV Five-Layer dual structure. |
+| v2.1 | 2026-05-16 | MEV五层重定位为Design Guidance（非执行骨架）。内核=Suit(Dispatch+Gate+Chain)。Sense~Evolve=插件设计参考。与 SOUL.md v6.2 同步。 |
 
-*MEV Five-Layer Engine v2.0 — Framework Core*
+> **SYNC_MARKER: SOUL.md v6.2** — 若 SOUL.md 版本变化，必须同步更新此文件。
+> 同步检查：MEV定位、Suit定义、Chain机制、插件体系。
+
+*MEV Five-Layer Engine v2.1 — Framework Core*

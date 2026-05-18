@@ -32,7 +32,7 @@ The core execution framework of Babata OS. Each layer: core question + verificat
 ① Suit    → Prepare & adapt (G0 preflight + boundary check)
 ② Sense   → Gather & collect (hypothesis explicit, ≥2 sources)
 ③ Think   → Analyze & falsify (bias check + method selection)
-④ Optimize → Deliver (G6 IMA + G7 judgments + G8 sources)
+④ Optimize → Deliver (G0-G4 五层递进门禁)
 ⑤ Evolve  → Reflect (lessons + framework audit)
 ```
 
@@ -42,10 +42,11 @@ The core execution framework of Babata OS. Each layer: core question + verificat
 
 ```
 🔒 DELIVERY CHECK
-[✅/❌] G0 Preflight: {result}
-[✅/❌] G6 IMA upload: {kb_name}
-[✅/❌] G7 Falsifiable: {n}/≥3
-[✅/❌] G8 Sources: A:{n} B:{n} C:{n}
+[✅/❌] G0 Coverage: {n} sources
+[✅/❌] G1 Structure: 完整
+[✅/❌] G2 Analysis: bias={} evidence_map={}
+[✅/❌] G3 Delivery: IMA={} push={}
+[✅/❌] G4 Evolve: trace={}
 ```
 
 ---

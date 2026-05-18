@@ -1,158 +1,161 @@
 ---
 name: mev-engine
 description: |
-  MEV Engine v7.2 — Self-auditing living system: Plugin Dispatch, Stage Checkpoint, Med-Research. Kernel lean, capabilities externalized, unused→dormant.
+  MEV Engine v8.0 ⚔️ — OpenClaw原生。MEV五层指导思想+交付约定+教训生命周期，全部基于OpenClaw内置能力，零自定义脚本。
 homepage: https://github.com/meta-evo-creator/mev-engine
-version: 7.2.1
+version: 8.0.0
 metadata:
   openclaw:
     emoji: ⚙️
-    requires:
-      bins: [python]
-      env: []
+    requires: {}
 ---
 
-# MEV Engine v7.2 ⚙️
+# MEV Engine v8.0 ⚔️
 
-> **v7.2: 自我审计的活系统 — Plugin Dispatch 精确定址 + 内核精简 + 死插件删除。**
+> **v8.0: 全部基于 OpenClaw 原生能力。MEV是驾驶手册，OpenClaw是引擎。零自定义脚本。**
 
-## Architecture
+## 定位
+
+MEV Engine 不是代码框架，是**思考方法论 + 交付约定**。
+
+- 🧠 **MEV五层** → 怎么思考一个问题
+- 📋 **G0-G4门禁** → 怎么检查一个产出
+- 📝 **交付约定** → Sign-off / UNSOURCED / 证据映射
+- 🔄 **教训生命周期** → 学到的东西怎么不丢失
+
+**引擎是 OpenClaw。** 所有执行都走 OpenClaw 原生能力（sessions / subagents / tools / skills / memory / delivery）。
+
+---
+
+## 架构
 
 ```
-┌─────────────────────────────────┐
-│         核心内核（不可变）         │
-│  SOUL.md: 身份+铁律+MEV骨架+工具表│
-│  TOOLS.md: 工具选择+护栏          │
-│  AGENTS.md: 工作区规则            │
-│  MEMORY.md: 长期记忆              │
-└────────────┬────────────────────┘
+┌─────────────────────────────┐
+│  OpenClaw（引擎）            │
+│  sessions · subagents       │
+│  tools · skills · memory    │
+│  cron · delivery · heartbeat│
+└────────────┬────────────────┘
              │
     ┌────────┼────────┐
     ↓        ↓        ↓
-┌────────┐┌────────┐┌────────────┐
-│ active  ││ scene  ││ dormant     │
-│ (常加载) ││ (按需)  ││ (休眠参考)  │
-├────────┤├────────┤├────────────┤
-│·cron规则││·深度调研 ││·Forum协作  │
-│·工具唤醒││·证据链  ││·Report IR  │
-│·核心less││·偏误检查││·Agent并行  │
-│·搜索降级││·合规分析││           │
-│·阶段存档││·医学研究││           │
-└────────┘└────────┘└────────────┘
+┌────────┐┌────────┐┌────────┐
+│ SOUL.md││plugins/││memory/ │
+│ 内核    ││ 技能    ││ 记忆    │
+│ 不可变  ││ 按需加载││ 三层体系 │
+└────────┘└────────┘└────────┘
 ```
-
-## Lifecycle
-
-```
-新能力 → scene/ (30天试用)
-  ↓ 触发≥3次
-active/ ← 常加载
-  ↓ 30天未触发
-dormant/ ← 休眠
-  ↓ 同类问题复现
-scene/ ← 重新激活
-```
-
-## When to Use
-Non-trivial tasks / Research / Cron / Multi-agent
-
-## When NOT to Use
-Simple Q&A / File-only / User says "skip"
 
 ---
 
-## Execution
+## MEV 五层（思考框架，不是代码流水线）
 
-### Step 0: Kernel Boot (mandatory, unskippable)
+> 内核只做Suit（入口适配）。Sense~Evolve是各插件设计内部流程时的参考框架。
 
-```bash
-node scripts/mev-prefight.cjs
+### ① Suit — 入口适配
+
+**不做的事：** 不再跑 `node mev-prefight.cjs`。
+
+**做的事：**
+- 读上下文：OpenClaw 已注入 Framework版本、当前时间、工具列表
+- 判定Tier：L1快答 / L2标准 / L3深度
+- 激活插件：`memory_search(PLUGIN-REGISTRY)` → 匹配 → `read` 加载插件
+
+**OpenClaw实现：** `read` + `memory_search` + skills auto-activation
+
+### ② Sense — 感知采集
+
+**搜索降级链（OpenClaw原生）：**
+```
+tavily__tavily_search → web_fetch → babata-browser → 标注「不可达」
 ```
 
-Output required in delivery:
-```
-🔒 G0 PREFLIGHT
-[✅/❌] Framework: v{version}
-[✅/❌] Search: {full/rate_limited/degraded}
-[✅/❌] Time: {ISO timestamp} Asia/Shanghai
-→ {FULL | DEGRADED_OK | DEGRADED}
-```
+工具选择表见 SOUL.md。
 
-### Step 1: Tier + Plugin Dispatch
+### ③ Think — 分析加工
 
-```
-📊 Tier: L{1|2|3}
-🔌 Dispatch: {plugin-list with priorities}
-```
+视任务复杂度，激活对应插件：
+- 纪检法规 → `discipline-inspect`（4-Agent编排 + RAG）
+- 医学研究 → `med-research`（Scout→Draft→Review）
+- 深度调研 → `deep-research`（L3专用）
 
-**Dispatch 机制：** 任务关键词 vs 插件指纹四维匹配（keywords + anti_keywords + task_types + priority）。详见 `plugins/PLUGIN-DISPATCH.md`。
+偏误检查、ACH、证据映射内置于各插件。
 
-**冲突裁决：** 同priority→都激活；异priority→高者胜出；force_activate→无视规则强制激活。
+### ④ Optimize — 交付检查
 
-| Task Type | Auto-activate |
-|:----------|:-------------|
-| — | 插件激活由 Plugin Dispatch 自动路由（`plugins/PLUGIN-DISPATCH.md`），不依赖手动激活表 |
+**G0-G4 门禁（OpenClaw原生）：**
 
-### Step 1.5: Stage Checkpoint (scene plugin)
+| 门禁 | 检查什么 | OpenClaw实现 |
+|:-----|:--------|:-----------|
+| G0 覆盖度 | 几个信源？几个维度？ | 手动统计（tavily result count + web_fetch URL数） |
+| G1 结构 | 缺哪段？ | 对照模板检查 |
+| G2 分析 | 偏误？遗漏？证据链？ | bias-check + evidence_map |
+| G3 交付 | IMA上传？推送？ | `ima-skill` + `wecom_mcp` |
+| G4 复盘 | 日志写了？教训沉淀了？ | `write(memory/YYYY-MM-DD.md)` + `edit(plugin LEARNED PATTERNS)` |
 
-> 插件：`plugins/scene/stage-checkpoint.plugin.md`
-> 设计来源：OPL Framework stage attempt ledger → MEV 轻量等价实现
-
-**核心机制：** 每层完成后写入结构化 receipt 到 `memory/checkpoints/{task-id}.md`，中断后可 resume。
-
-| Tier | 行为 |
-|:----:|:-----|
-| L1 | 跳过 |
-| L2 | 每层写入 receipt |
-| L3 | 每层写入 receipt + 支持 resume |
-
-**启动时：** 检查 `memory/checkpoints/{task-id}.md`，若存在则从断点 resume。
-
-### Step 2: MEV Five Layers
-
-Suit → Sense → Think → Optimize → Evolve (见 SOUL.md 内核)
-
-每层完成后写入该层 receipt（见 stage-checkpoint 插件）。
-
-### Step 3: Delivery Gates
-
+**交付格式要求：**
 ```
 🔒 DELIVERY CHECK
-[✅/❌] G0 Preflight: {result}
-[✅/❌] G6 IMA upload: {kb_name}
-[✅/❌] G7 Falsifiable: {n}/≥3
-[✅/❌] G8 Sources: A:{n} B:{n} C:{n}
+[✅/❌] G0 Coverage: {n} sources / {n} dimensions
+[✅/❌] G1 Structure: 完整 / 缺失{list}
+[✅/❌] G2 Analysis: bias={PASS/修正} gap={无遗漏/已标记} evidence_map={n}/{total}
+[✅/❌] G3 Delivery: IMA={kb_name} push={sent/failed}
+[✅/❌] G4 Evolve: trace={written}
 ```
 
+### ⑤ Evolve — 进化沉淀
+
+**教训生命周期（OpenClaw原生）：**
+
+```
+遇到教训 → edit(plugin LEARNED PATTERNS 段)
+         → edit(core-lessons.plugin.md 索引)
+         
+激活：插件被Dispatch激活 → 教训自动加载
+退役：插件30天未触发 → 教训随之休眠
+```
+
+每日日志：`write(memory/YYYY-MM-DD.md)`
+长期记忆提炼：`edit(MEMORY.md)`（每几日从每日日志提炼）
+
 ---
 
-## Gate Skip Rules
+## Sign-off Protocol
 
-| Condition | Skip | Reason |
-|:----------|:-----|:------|
-| L1 task | G4-G8 | Annotate |
-| Cron isolated | No sub-agents | Auto-rule |
-| No search needed | G2=N/A | Preflight auto-detect |
-| No IMA upload | G6=N/A | Annotate |
+> 来源：Anthropic Financial-Services → 纪检场景同构。AI Drafts, Humans Sign Off.
+
+每个分析类产出必须带审批节点。详见各插件 agent 指令。
 
 ---
 
-## Scripts
+## 跳过规则
 
-| Script | Purpose |
-|:-------|:--------|
-| `scripts/mev-prefight.cjs` | G1+G2+G3 unified preflight |
-| `scripts/framework-check.cjs` | Version + integrity (24h cache) |
-| `scripts/tavily-probe.cjs` | Tavily MCP availability |
-| `scripts/ima-upload.cjs` | IMA KB upload |
+| 条件 | 跳过 |
+|:-----|:-----|
+| L1 简单查询 | G0-G4 + checkpoint |
+| Cron 隔离 | **禁止子代理**，强制 G0-G4 |
+| 无需 IMA | G3 IMA=N/A |
+
+---
+
+## 插件生命周期（OpenClaw原生）
+
+```
+scene/ (试用) → 触发≥3次 → active/ (常驻)
+active/ → 30天未触发 → dormant/ (休眠)
+dormant/ → 同类问题复现 → scene/ (重新激活)
+```
+
+**OpenClaw实现：** HEARTBEAT.md 月度检查触发计数 + `memory/.mev/plugin-stats.json`
 
 ---
 
 ## Changelog
 
 | Version | Date | Changes |
-|:----|:----|------|
-| v6.5 | 05-12 | Trust-but-verify: unified preflight, Agent E verify, IMA fallback |
-| **v7.0** | **05-13** | **Kernel+Plugin architecture. Core immutable, capabilities as plugins, auto-dormancy lifecycle. MEV skeleton preserved, specific rules moved to plugins.** |
-| **v7.1** | **05-14** | **Stage checkpoint plugin (scene). Five-layer receipts → durable resume. Interrupt recovery for cron + L2/L3. Zero new dependencies. Inspired by OPL Framework stage attempt ledger.** |
-| **v7.2** | **05-14** | **Plugin Dispatch (精准四维路由) + Med-Research (五阶段医学研究) + 内核自审计精简 (删除Agent Groups表、手动激活表→Dispatch自动化、删2个死插件)。MEV成为自审计活系统。** |
+|:----|:----|:------|
+| v7.4.1 | 05-18 | 战略储备推进 + Sign-off/UNSOURCED 植入 |
+| **v8.0.0** | **05-18** | **全面复盘后重构：删除6个自定义脚本（mev-prefight/framework-check/tavily-probe/log-learning/log-experiment/promote-learning），全部改用OpenClaw原生能力。ima-upload降级为批量工具。SKILL.md从7.3KB精简为~3KB。MEV是驾驶手册，OpenClaw是引擎。** |
+
+> ⚠️ 纯本地技能，不上传 ClawHub / GitHub。
+> **引擎是 OpenClaw。MEV 提供思考框架和交付约定。**
