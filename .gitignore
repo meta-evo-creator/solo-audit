@@ -3,6 +3,30 @@ skills/discipline-inspect/
 plugins/scene/discipline-inspect/
 plugins/scene/discipline-inspect.plugin.md
 
+# ⛔ 个人/机构敏感信息
+MEMORY.md
+TOOLS.md
+USER.md
+IDENTITY.md
+SOUL.md
+AGENTS.md
+SUIT-DISPATCH.md
+BOOT.md
+DREAMS.md
+
+# 工作日志
+memory/2026-*.md
+memory/2025-*.md
+memory/INTELL-*.md
+memory/SPOT-*.md
+memory/AI-*.md
+memory/intell-*.md
+memory/inte11-*.md
+memory/*report*.md
+memory/*内参*.md
+memory/*复盘*.md
+memory/*深度调研*.md
+
 # 机密数据
 memory/中山一院纪检监察/
 memory/巡视工作/
