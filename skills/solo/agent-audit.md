@@ -18,6 +18,7 @@
 | 他任务最后一份 | 读取其他 cron 的最近 checkpoint |
 | 已知失败模式 | `memory/audit/knowledge/失败模式清单.json` |
 | 已批准/已拒绝改动 | `已批准的SOP改动记录.json` / `已拒绝的审计提案.json` |
+| 审计规则 | `AUDIT_LEARNINGS.md` — 检查是否已有生效规则与本提案冲突 |
 | 审计器健康数据 | `memory/audit/meta/auditor-health.json` |
 
 ---
