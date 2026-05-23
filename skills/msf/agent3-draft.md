@@ -20,6 +20,28 @@
 ## 八、⏸️ HUMAN_APPROVAL — 最终结论需人工确认
 ```
 
+## G1.5 引用校验（新增·审理分离·Draft完成后立即执行）
+报告完成后逐条检查：
+1. 每条事实主张是否有对应 evidence_id 引用
+2. 引用的 evidence_id 是否在 evidence_ledger 中存在
+3. 数值型数据（PE/ROE/股价）是否标注来源等级[S1/S2/S3]
+4. 未在 evidence_ledger 中但出现在报告中的新数据 → 标记为 `[UNSOURCED-NEW]`
+5. 同一数据在报告中多次出现时是否引用一致
+
+校验结果写入 receipt 的 `citation_audit` 字段：
+```json
+{
+  "citation_audit": {
+    "total_claims": N,
+    "with_source": N,
+    "unsourced": N,
+    "unsourced_new": N,
+    "coverage": 0-100
+  }
+}
+```
+coverage < 95% → 退回到 Draft 修正，不可 handoff。
+
 ## Stage Gate
 - [ ] 每条主张有 source 引用 (citation coverage ≥ 95%)
 - [ ] 局限性已声明
