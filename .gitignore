@@ -53,3 +53,10 @@ node_modules/
 .tmp/
 .trash/
 *.tmp
+
+# cron内部配置（含API凭证）
+cron/
+# 审计层档案（含任务执行数据）
+memory/audit/
+# Cron执行日志
+cron/runs/

@@ -1,86 +1,142 @@
 ---
 name: solo
 description: |
-  SOLO — Solo Operating Legion ⚡ One person, an entire agent army. The meta-agent that watches over domain agents (med-research, babata-browser). Zero custom scripts, pure OpenClaw-native.
+  SOLO — Solo Operating Legion ⚡ 三权制衡架构。内核(立法) + SOLO审计(司法) + 技能(执行)。meta-agent，零脚本，纯OpenClaw原生。
 homepage: https://github.com/meta-evo-creator/solo
-version: 1.0.0
+version: 2.0.0
 metadata:
   openclaw:
     emoji: ⚡
     requires: {}
 ---
 
-# SOLO — Solo Operating Legion ⚡
+# SOLO v2.0 ⚡ — 三权制衡架构
 
-> **One person, an entire agent army. The meta-agent that watches the fleet.**
+> **One person, an entire agent army.**
+> 内核定铁律，SOLO管审计，技能干实事。零脚本，纯 OpenClaw 原生。
 
-SOLO is the thinking methodology and delivery convention for the agent fleet. OpenClaw is the engine. SOLO drives.
+---
 
-## The Fleet
-
-```
-                    ┌───────────┐
-                    │   SOLO    │  meta-agent
-                    │ watches   │
-                    │ the fleet │
-                    └─────┬─────┘
-                          │
-        ┌─────────────────┼─────────────────┐
-        ↓                 ↓                 ↓
-   ┌──────────┐    ┌──────────┐    ┌──────────┐
-   │ ⚔️ d-inspect│    │ 🔬 med-r  │    │ 🦞 bata-b  │
-   │ Inspector │    │Researcher │    │  Scout    │
-   └──────────┘    └──────────┘    └──────────┘
-```
-
-## What SOLO Does
-
-- **Fleet monitoring** — Which agents are active/dormant? What's their health?
-- **Delivery standards** — G0-G4 gates, Sign-off protocol, UNSOURCED marking
-- **Lesson lifecycle** — Every lesson embeds in the plugin that triggered it
-- **MEV五层 methodology** — How to think: Suit→Sense→Think→Optimize→Evolve
-- **Dispatch rules** — When to activate which agent
-- **Hard fallback rules** — web_fetch fail → babata-browser, no exceptions
-
-## What SOLO Does NOT Do
-
-- Does not execute domain work — that's what agents are for
-- Does not replace OpenClaw — OpenClaw is the engine
-- Does not contain custom scripts — zero scripts, pure native
-
-## Fleet Status
-
-| Agent | Status | Triggers |
-|:------|:------:|:--------|
-| med-research 🔬 | scene | 医学研究·证据·系统评价·论文 |
-| babata-browser 🦞 | active | 政府网站·JS渲染·web_fetch失败 |
-| tool-awakening | active | every Suit layer |
-
-## Delivery Convention
+## 架构总览
 
 ```
-🔒 DELIVERY CHECK
-[✅/❌] G0 Coverage: {n} sources / {n} dimensions
-[✅/❌] G1 Structure: 完整 / 缺失{list}
-[✅/❌] G2 Analysis: bias={PASS/修正} gap={无遗漏/已标记}
-[✅/❌] G3 Delivery: IMA={kb_name} push={sent/failed}
-[✅/❌] G4 Evolve: trace={written}
-
-⏸️ STOP_FOR_REVIEW  ←  AI drafts, humans sign off
-[条款待确认]        ←  never guess a clause number
-[UNSOURCED]         ←  never fabricate a source
+┌──────────────────────────────────────────────────────────────┐
+│ ① 内核（立法权）                                            │
+│   SOUL.md · AGENTS.md · TOOLS.md                            │
+│   七条铁律 · Suit门禁 · 工具护栏                             │
+├──────────────────────────────────────────────────────────────┤
+│ ② SOLO（司法/审计权）                                       │
+│   agent-audit.md · AUDIT_LEARNINGS.md                       │
+│   事前拦截 · 事后审计 · 跨任务模式检测 · 审计层自我进化       │
+│   memory/audit/{archive,knowledge,meta}                      │
+├──────────────────────────────────────────────────────────────┤
+│ ③ 技能（执行权）                                            │
+│   cron / MSF / DI / babata-browser / ...                    │
+│   执行 → 写 G4.5 signature → 审计层消费                       │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-## Lifecycle
+**三权边界：** 立法不可改（内核只追加不修改），司法只读不写（只提提案不改SOP），执行不许越权（受铁律+审计双重约束）。
+
+---
+
+## 一、内核（立法权）
+
+| 文件 | 职责 | 访问方式 |
+|:-----|:-----|:---------|
+| `SOUL.md` | 七条铁律：隐私/溯源/注入/权责/惜金/记忆/谦逊 | Suit Step 0 门禁自检 |
+| `AGENTS.md` | 工作区规则：三层记忆·会话协议·工具调用纪律 | 每次会话自动加载 |
+| `TOOLS.md` | 工具护栏：搜索降级链·反爬检测·web_fetch→babata硬规则 | 每次任务工具选择 |
+
+内核原则：**只追加不修改**——铁律不能降级，只能补充。
+
+---
+
+## 二、SOLO（司法/审计权）
+
+### 审计Agent
+
+**文件：** `skills/solo/agent-audit.md`
 
 ```
-scene/ → trigger ≥3x → active/ → 30d idle → dormant/
+事前拦截器（Suit Step 0）       — 核铁律门禁，高风险阻断
+事后审计器（六步流程）           — 读checkpoint→跨任务比对→提案
+双路输出                         — 哈希链档案 + 知识库
+自我进化                         — 采纳率追踪，健康检查
 ```
 
-SOLO audits agent lifecycle via HEARTBEAT. No need for custom scripts.
+### 审计规则
+
+**文件：** `AUDIT_LEARNINGS.md`
+- 每次审计提案经石冰审批通过后自动追加
+- 所有技能启动时自动加载（每个 cron payload 顶部 `read AUDIT_LEARNINGS.md`）
+
+### 审计仓库
+
+```
+memory/audit/
+├─ archive/         哈希链档案，审计结论永久不可改
+├─ knowledge/
+│  ├─ 失败模式清单.json    已知失败模式字典
+│  ├─ 已批准的SOP改动记录.json  已生效改动
+│  └─ 已拒绝的审计提案.json     被拒提案及理由
+└─ meta/
+   └─ auditor-health.json   采纳率·健康度·自检建议
+```
+
+### 审计日程
+
+| cron | 时间 | 职责 |
+|:-----|:----:|:------|
+| **SOLO 每日审计** | **22:00** | 读当日全部技能产出→跨任务模式检测→提案→推送 |
+
+---
+
+## 三、技能（执行权）
+
+| 技能 | 文件 | 职责 |
+|:-----|:-----|:------|
+| AI圈热点 | cron payload | 每日04:00 增量热点监测 |
+| 医院智慧监督 | cron payload | 每日07:00 情报内参 |
+| AI医疗案例 | cron payload | 每日09:00 企业案例 |
+| 法规月度检查 | cron payload | 每月1日法规版本校验 |
+| MSF | `skills/msf/` | 医学社会组织尽职调研 |
+| DI | `skills/discipline-inspect/` | 纪检法规搜索 |
+| babata-browser | `skills/babata-browser/` | 反爬页面抓取 |
+| ... | ... | ... |
+
+每个技能执行完成后必须：
+1. 写 G4.5 `execution_signature` 到 checkpoint
+2. 输出含 `rawLength` / 反爬关键词 / 签名三段式
+
+---
+
+## 调度规则
+
+| 层级 | 触发规则 |
+|:-----|:---------|
+| **循坏调度** | cron 表达式固定（4/7/9/22点，法规每月1日） |
+| **按需调度** | 石冰直接触发 MSF/DI/babata-browser |
+| **审计调度** | SOLO 每日22:00 自动扫描所有任务输出 |
+
+---
+
+## 清单
+
+| 文件 | 来源 |
+|:-----|:------|
+| `skills/solo/SKILL.md` | 本文档 |
+| `skills/solo/agent-audit.md` | 审计Agent |
+| `AUDIT_LEARNINGS.md` | 审计规则 |
+| `memory/audit/` | 审计仓库 |
+| 内核三件套 | `SOUL.md` · `AGENTS.md` · `TOOLS.md` |
+| 各技能文件 | `skills/{msf,discipline-inspect,...}/` |
+
+---
 
 ## Changelog
 
-| Version | Date | Changes |
-|:----|:----|:------|
-| **1.0.0** | **05-18** | **Born from v8 architecture evolution. Renamed SOLO: Solo Operating Legion. Meta-agent monitors the fleet. One person, an entire agent army.** |
+| 版本 | 日期 | 变化 |
+|:-----|:----:|:------|
+| **2.0.0** | **05-23** | **三权制衡架构重写。内核(立法) + SOLO审计(司法) + 技能(执行)。审计Agent+审计规则+审计仓库全新建。MSF降级规则同步注入。** |
+| 1.0.0 | 05-18 | 初版。SOLO 从 v8 架构进化而来。Meta-agent monitors the fleet. |
