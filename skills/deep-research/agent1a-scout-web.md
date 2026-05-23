@@ -8,6 +8,17 @@
 3. web_search: 补充搜索
 4. 所有搜索均失败 → search_log 记录「搜索引擎不可达」，保留已获取结果
 
+## ⚠️ 页面抓取降级（从 MSF Scout 引入）
+若需 web_fetch 获取具体页面内容，获取后必须检查：
+| 检查项 | 判定 |
+|:-------|:-----|
+| rawLength < 500字符 | web_fetch 返回的 rawLength 字段 < 500 → 切 babata-browser |
+| 反爬关键词 | 含 `验证码` `captcha` `滑块` `blocked` `403` `404` 等 → 切 babata-browser |
+| 仅含导航页脚 | 只有菜单/备案号/联系方式，无正文 → 切 babata-browser |
+
+命中任意一项 → 立即切 babata-browser🔥，禁止改URL或重试。
+两者均失败 → 标注「信源不可达」记录原因。
+
 ## 输出
 **写文件** `artifacts/scout_web.json`
 ```json
