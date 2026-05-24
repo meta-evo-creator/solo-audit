@@ -109,6 +109,7 @@ memory/audit/
 每个技能执行完成后必须：
 1. 写 G4.5 `execution_signature` 到 checkpoint
 2. 输出含 `rawLength` / 反爬关键词 / 签名三段式
+3. **在每阶段切换时更新 `.solo/pipeline-status.json`**（为 `solo status` 提供实时进度数据）
 
 ---
 
@@ -139,5 +140,6 @@ memory/audit/
 
 | 版本 | 日期 | 变化 |
 |:-----|:----:|:------|
+| **2.0.1** | **05-24** | **新增管线状态协议：`.solo/pipeline-status.json`（DR/DI/MSF统一状态文件），`solo status` 命令可视化进度面板** |
 | **2.0.0** | **05-23** | **三权制衡架构重写：内核(立法)+SOLO审计(司法·Pro·反镜像·🚨紧急·哈希链)+技能(执行)。MSF降级+宪法规则+元进化闭环。** |
 | 1.0.0 | 05-18 | 初版。SOLO 从 v8 架构进化而来。Meta-agent monitors the fleet. |
