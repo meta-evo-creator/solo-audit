@@ -29,6 +29,29 @@ metadata:
 | **Authority Boundary** | AI: Scout/Analyze/Draft/Revise | Human: 最终结论/医学判断/对外发布 |
 | **Recovery** | 任一 stage FAIL → 标记原因 → 退回上一 stage 重试（保留 attempt 历史） |
 
+## ⚡ Solo Status 协议（强制）
+
+每次 Stage 切换时更新 `./solo/pipeline-status.json`，与 DR/DI 格式统一。
+
+```json
+{
+  "pipeline_id": "MSF-20260524-xxx",
+  "skill": "msf",
+  "topic": "研究主题",
+  "started_at": "ISO时间",
+  "last_updated": "ISO时间",
+  "phases": {
+    "Stage 0: Contract": {"status": "completed", "detail": "stage_contract.yaml"},
+    "Stage 1: Scout":    {"status": "running",   "detail": "4库搜索中"},
+    "Stage 2: Analyze":  {"status": "pending",   "detail": ""},
+    "Stage 3: Draft":    {"status": "pending",   "detail": ""},
+    "Stage 4: Review":   {"status": "pending",   "detail": ""},
+    "Stage 5: Revise":   {"status": "pending",   "detail": ""}
+  },
+  "running_subagents": []
+}
+```
+
 ## 5-Agent Stage 管线 (v4.2)
 
 ```

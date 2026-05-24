@@ -17,6 +17,40 @@ metadata:
 > 8-Agent File-based Handoff Pipeline。不再通过 task 参数传递数据——Agent 读写 `artifacts/` 目录。
 > **v3.2: 吸收 fainir file-handoff + GPT Researcher Merge Agent + Magentic task ledger**
 
+## ⚡ Solo Status 协议（强制）
+
+所有技能（DR/DI/MSF）在每次管线阶段切换时，**必须更新状态文件** `./solo/pipeline-status.json`，实现统一的进度可视化和`solo status`命令支持。
+
+**更新时机：** 每个阶段 spawn 前 + 每个阶段完成后
+
+**写文件格式：**
+```json
+{
+  "pipeline_id": "DR-20260524-topic-name",
+  "skill": "deep-research",
+  "topic": "研究主题",
+  "started_at": "ISO时间",
+  "last_updated": "ISO时间",
+  "phases": {
+    "Phase 1: Scout":      {"status": "completed", "detail": "3路·41条来源"},
+    "Phase 1.5: Merge":    {"status": "running",   "detail": "去重中"},
+    "Phase 2: Analyze":    {"status": "pending",   "detail": ""},
+    "Phase 3: Draft":      {"status": "pending",   "detail": ""},
+    "Phase 4: Review":     {"status": "pending",   "detail": ""},
+    "Phase 5: Revise":     {"status": "pending",   "detail": ""}
+  },
+  "running_subagents": [
+    {"name": "当前运行子代理", "running_seconds": 0}
+  ]
+}
+```
+
+**status取值：** `completed`（完成）| `running`（运行中）| `pending`（等待）| `failed`（失败）
+
+`solo status` 响应时读取此文件，格式化为进度面板展示。
+
+---
+
 ## 六阶段管线（8 Agent）
 
 ```
