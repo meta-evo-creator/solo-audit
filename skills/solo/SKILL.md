@@ -52,18 +52,11 @@ metadata:
 
 ---
 
-## 二、SOLO（司法/审计权）
+## 二、SOLO审计（司法权）
 
-### 审计Agent
+**独立技能：** `skills/solo-audit/SKILL.md` — 由OpenClaw自动发现
 
-**文件：** `skills/solo/agent-audit.md`
-
-```
-事前拦截器（Suit Step 0）       — 核铁律门禁，高风险阻断
-事后审计器（六步流程）           — 读checkpoint→跨任务比对→提案
-双路输出                         — 哈希链档案 + 知识库
-自我进化                         — 采纳率追踪，健康检查
-```
+对标七条铁律+谦抑约束，从cron runs日志追踪。零异常一句输出。只提提案不执行。
 
 ### 审计规则
 
@@ -98,13 +91,26 @@ memory/audit/
 | 技能 | 文件 | 职责 |
 |:-----|:-----|:------|
 | AI圈热点 | cron payload | 每日04:00 增量热点监测 |
-| 医院智慧监督 | cron payload | 每日07:00 情报内参 |
+| 医院智慧监督 | cron payload | 每日06:00 情报内参 |
 | AI医疗案例 | cron payload | 每日09:00 企业案例 |
 | 法规月度检查 | cron payload | 每月1日法规版本校验 |
 | MSF | `skills/msf/` | 医学社会组织尽职调研 |
 | DI | `skills/discipline-inspect/` | 纪检法规搜索 |
-| babata-browser | `skills/babata-browser/` | 反爬页面抓取 |
+| babata-browser | `skills/babata-browser/` | 反爬页面抓取（取内容） |
+| babata-search | `skills/babata-search/` | 中文搜索引擎 v2.0（搜链接） |
 | ... | ... | ... |
+
+### 🔗 技能关联：search → browser 标准工作流
+
+```
+babata-search（搜）  ──→  babata-browser（取）
+     ↓                        ↓
+  找有什么                打开看内容
+  返回URL列表              返回全文/证据
+```
+
+**规则：** search 搜到的非静态页面链接，必须用 babata-browser 打开获取内容，不能用 web_fetch。
+**例外：** 学术搜索（知网/万方）直接走 babata-browser，不经过 search。
 
 每个技能执行完成后必须：
 1. 写 G4.5 `execution_signature` 到 checkpoint
