@@ -1,14 +1,14 @@
 ---
 name: solo-audit
-version: 4.2.0
+version: 4.4.0
 description: |
-  SOLO 审计 Agent v4.2 — 司法权。对标六条铁律（正交精简）+MEV五层（过程质量）+三原则（设计哲学）+Fleet同步审计。
+  SOLO 审计 Agent v4.4.0 — 审层（独立审计）。对标六条铁律（正交精简）+MEV五层（过程质量）+五原则（655体系）+Fleet同步审计+文件结构审计。
   审计结论 → IMA知识库沉淀。只读工具allowlist保障谦抑。openclaw doctor前置检查。
   模型强制：deepseek/deepseek-v4-pro。
-  Use when: Fleet巡检、系统审计、铁律对标检查、根因分析、MEV执行审计
+  Use when: Fleet巡检、系统审计、文件结构审计、铁律对标检查、根因分析、MEV执行审计
 ---
 
-# SOLO 审计 Agent v4.2
+# SOLO 审计 Agent v4.4.0
 
 > 协议规范。所有流程为可执行级定义，含输入/输出/状态转移/异常处理。
 
@@ -17,12 +17,12 @@ description: |
 ## 0. 协议签名
 
 ```
-PROTOCOL: solo-audit v4.1
+PROTOCOL: solo-audit v4.4.0
 入口:    { trigger: 'cron' | 'direct' | 'heartbeat', scope: AuditScope }
 出口:    AuditResult | void(零违反)
 模型:    deepseek/deepseek-v4-pro (强制)
 工具:    allowlist = [read, cron, memory_get, memory_search, exec(只读)]
-          deny = [write, edit, wecom_mcp]  // 谦抑保证：只有提案权，无执行权
+          deny = [write, edit, wecom_mcp]  // 谦抑保证：只有提案权，无执行权限
 ```
 
 ---
@@ -32,10 +32,11 @@ PROTOCOL: solo-audit v4.1
 ```typescript
 // 审计范围
 type AuditScope = {
-  target: string;        // 审计对象（cron id / report path / skill name）
+  target: string;        // 审计对象（cron id / report path / skill name / 'file-structure'）
   reason: string;        // 触发原因
   date: string;          // YYYY-MM-DD
   source: 'cron' | 'direct' | 'heartbeat';
+  scope_type: 'cron' | 'report' | 'skill' | 'fleet' | 'file-structure';  // 审计范围类型
 }
 
 // 单条违反
@@ -89,10 +90,10 @@ type Proposal = AuditResult['proposals'][0];
 ## 2. 状态机
 
 ```
-IDLE ──[触发]──→ HEALTH_CHECK ──ok──→ COLLECT ──→ IRON_ALIGN
-                   │ fail                      │
-                   ↓                           ↓
-              [框架异常] 终止                MEV_ALIGN
+IDLE ──[触发]──→ HEALTH_CHECK ──ok──→ COLLECT ──→ FILE_MGMT_CHECK ──→ IRON_ALIGN
+                   │ fail                                    │
+                   ↓                                         ↓
+              [框架异常] 终止                          MEV_ALIGN
                                               │
                                               ↓
                                          PRINCIPLE_ALIGN
@@ -145,6 +146,29 @@ ACTION: 读目标产出:
   - skill scope → read SKILL.md + 检查 payload / SOP 文件
   - fleet scope → read PLUGIN-REGISTRY.md + 逐技能: (1)读 SKILL.md frontmatter version字段 (2)读 description 中版本号字符串 (3)比对两者是否一致 (4)比对与registry记录是否一致
 OUTPUT: { runs: RunMeta[], reports: ReportContent[], configs: ConfigEntry[], fleet_sync: { skill: string, registry_ver: string, actual_ver: string, ok: boolean }[] }
+```
+
+### 3.2a FILE_MGMT_CHECK — 文件结构审计（scope_type='file-structure' 时触发；其他scope跳过）
+
+```
+INPUT:  target path (默认 C:\Users\shibi\.openclaw\wiki\main\sources)
+ACTION: 按 .sop/workspace-file-management.md 执行:
+  1. 检查 WIKI 目录（discipline/法规/ 和 medical/）是否存在
+  2. 检查 memory/ 或 workspace/ 下是否有法规副本未清理
+     - 扫描 memory/ 下 .txt / .md 文件是否为法规内容
+     - 检查是否有同名文件同时在 wiki 和 memory 中存在
+  3. 检查新下载制度的版本年份是否为最新
+OUTPUT: {
+  wiki_dir_exists: boolean,
+  wiki_file_count: number,
+  stray_regulations: string[],  // wiki目录外发现的法规副本
+  stale_versions: string[],
+  violations_found: number
+}
+RULES:
+  - 本阶段仅收集证据，不写入、不移动、不删除任何文件
+  - 发现违反 → 写入 violations[]，scope='设计层'
+  - 同时生成 proposals
 ```
 
 ### 3.3 IRON_ALIGN — 铁律对标
@@ -250,15 +274,18 @@ EMIT_FINDINGS:
 | Optimize | 审计输出是否按交付规范格式化为标准archive.json？字段完整？ | 结构化输出+字段完备 |
 | Evolve | 若发现新模式，是否已沉淀到失败模式清单？ | 新发现已记录 |
 
-### 4.3 原则问句表（设计哲学）
+### 4.3 原则问句表（五原则·655体系：1基石 + 4输出）
 
 > 职责：问设计取舍——设计对不对？
+> 结构：规则膨胀陷阱是基石（设计层），纯净/压缩/优先/降熵是输出层（产出层）。降熵为新增，主次分离控主会话token。
 
-| 原则 | 审计问句 |
-|:-----|:---------|
-| 精简 | payload/SOP膨胀了？加了步骤/规则/禁止条款？ |
-| 膨胀陷阱 | 出问题后加禁止规则 vs 检查设计是否需要这条路径？ |
-| 报告纯净 | 报告含IMA/media_id/搜索工具/降级/G3-G4门禁等元数据？ |
+| 层级 | 原则 | 审计问句 |
+|:---:|:-----|:---------|
+| **基石** | 规则膨胀陷阱 | 出问题后加禁止规则 vs 检查设计是否需要这条路径？新增的每条指令/文件/路径是否必要？铁律六条已闭，不再增补。 |
+| 输出 | 纯净 | 报告只输出与当前决策直接相关的内容？含无关信息/元数据/跨域内容/自指标签/承诺预告/空表/冗余结构？ |
+| 输出 | 压缩 | token:信息比合理？有装饰性内容（emoji/分节/冗余描述）？能否用更少token传递相同信息？ |
+| 输出 | 优先 | 冲突时是否按安全>准确>纯净>效率裁决？ |
+| 输出 | 降熵 | 对话是否分主次？任务结束是否凝练回传而非堆砌历史？主会话是否只存结构化摘要？子会话是否承载具体任务？ |
 
 ---
 
@@ -289,8 +316,11 @@ EMIT_FINDINGS:
 
 | 版本 | 日期 | 变更 |
 |:-----|:-----|:------|
-| v4.2 | 2026-05-31 | 新增fleet scope：审计 registry 版本号与 SKILL.md 实际版本是否一致 |
-| v4.1 | 2026-05-31 | 问句表正交重构：铁律精简(记忆→MEV Evolve+谦抑→权责内化)、MEV转为过程质量评价、三表职责明确(是非/质量/设计) |
+| v4.5 | 2026-06-06 | SOLO 655：五原则升级——规则膨胀陷阱(基石) + 纯净/压缩/优先/降熵(输出四原则)。新增优先+降熵，主次分离控主会话token。同步SOUL.md |
+| v4.4 | 2026-06-02 | SOLO 654：新增第四原则「最小信号」— token效率审计，对标④权责两清+⑤惜文件如金。报告纯净原则扩展——从元数据→全维度无关信息过滤 |
+| v4.3 | 2026-06-02 | 新增file-structure scope：双轨存储同步审计 + Workspace文件管理约定引用 |
+| v4.3 | 2026-06-02 | 新增file-structure scope：双轨存储同步审计 + Workspace文件管理约定引用 |
+| v4.2 | 2026-05-31 | 新增fleet scope：铁律精简(记忆→MEV Evolve+谦抑→权责内化)、MEV转为过程质量评价、三表职责明确(是非/质量/设计) |
 | v4.0 | 2026-05-31 | 代码级SOP重构：状态机+数据类型+MEV五层对标+异常处理表 |
 | v3.1 | 2026-05-30 | 精简原则+膨胀陷阱+报告纯净三原则对标 |
 | v2.2 | 2026-05-22 | 谦抑约束+铁律对标 |
