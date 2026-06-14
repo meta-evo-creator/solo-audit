@@ -1,11 +1,11 @@
 ---
 name: solo-audit
-version: 4.4.0
+version: 4.6.0
 description: |
-  SOLO 审计 Agent v4.4.0 — 审层（独立审计）。对标六条铁律（正交精简）+MEV五层（过程质量）+五原则（655体系）+Fleet同步审计+文件结构审计。
+  SOLO 审计 Agent v4.6.0 — 审层（独立审计）。对标六条铁律+MEV五层+五原则（655体系）+Governance治理审计（特权环对标）+Fleet同步审计+文件结构审计。
   审计结论 → IMA知识库沉淀。只读工具allowlist保障谦抑。openclaw doctor前置检查。
   模型强制：deepseek/deepseek-v4-pro。
-  Use when: Fleet巡检、系统审计、文件结构审计、铁律对标检查、根因分析、MEV执行审计
+  Use when: Fleet巡检、系统审计、治理合规审计、文件结构审计、铁律对标检查、根因分析、MEV执行审计
 ---
 
 # SOLO 审计 Agent v4.4.0
@@ -62,7 +62,21 @@ type AuditResult = {
     iron_laws: Array<{ law: string, status: '✅' | '⏸️' | '❌', note?: string }>;
     mev_five: Array<{ layer: string, status: '✅' | '⏸️' | '❌', note?: string }>;
     principles: Array<{ principle: string, status: '✅' | '⏸️' | '❌', note?: string }>;
+    governance: Array<{ dimension: string, status: '✅' | '⏸️' | '❌', note?: string }>;
   };
+  // 治理审计记录：每条审计决策关联当时的策略上下文
+  governance_records: Array<{
+    operation: string;        // 被审计的操作
+    ring: number;             // 操作所属环级
+    ring_name: string;
+    category: string;         // 操作类别
+    policy_name: string;
+    policy_version: string;
+    result: 'allowed' | 'blocked' | 'requires_approval';
+    approver?: string;
+    reason: string;           // 允许/拒绝的依据
+    decision_id?: string;
+  }>;
   violations: Violation[];
   positive_findings: string[];
   benchmark_sync: {
@@ -97,6 +111,9 @@ IDLE ──[触发]──→ HEALTH_CHECK ──ok──→ COLLECT ──→ FI
                                               │
                                               ↓
                                          PRINCIPLE_ALIGN
+                                              │
+                                              ↓
+                                         GOVERNANCE_ALIGN
                                               │
                                               ↓
                                          LOAD_BENCHMARK
@@ -145,7 +162,17 @@ ACTION: 读目标产出:
   - report scope → read 目标报告文件 (检查全文含元数据)
   - skill scope → read SKILL.md + 检查 payload / SOP 文件
   - fleet scope → read PLUGIN-REGISTRY.md + 逐技能: (1)读 SKILL.md frontmatter version字段 (2)读 description 中版本号字符串 (3)比对两者是否一致 (4)比对与registry记录是否一致
-OUTPUT: { runs: RunMeta[], reports: ReportContent[], configs: ConfigEntry[], fleet_sync: { skill: string, registry_ver: string, actual_ver: string, ok: boolean }[] }
+  - 所有scope通用: 检查 governance policy 文件是否存在
+    (1) 读 scripts/policy-engine/policy.json 是否存在且格式正确
+    (2) 读 scripts/policy-engine/engine.py 是否存在
+    (3) 检查 SOUL.md 是否包含特权环定义
+OUTPUT: {
+  runs: RunMeta[],
+  reports: ReportContent[],
+  configs: ConfigEntry[],
+  fleet_sync: { skill: string, registry_ver: string, actual_ver: string, ok: boolean }[],
+  governance_policy: { exists: boolean, valid: boolean, version: string }
+}
 ```
 
 ### 3.2a FILE_MGMT_CHECK — 文件结构审计（scope_type='file-structure' 时触发；其他scope跳过）
@@ -153,10 +180,11 @@ OUTPUT: { runs: RunMeta[], reports: ReportContent[], configs: ConfigEntry[], fle
 ```
 INPUT:  target path (默认 C:\Users\shibi\.openclaw\wiki\main\sources)
 ACTION: 按 .sop/workspace-file-management.md 执行:
-  1. 检查 WIKI 目录（discipline/法规/ 和 medical/）是否存在
-  2. 检查 memory/ 或 workspace/ 下是否有法规副本未清理
-     - 扫描 memory/ 下 .txt / .md 文件是否为法规内容
-     - 检查是否有同名文件同时在 wiki 和 memory 中存在
+  1. 检查 WIKI 目录（discipline/法规/、medical/、compliance/、hospital-inspection/、inspection/）是否存在
+  2. 检查 workspace/ 下是否有残留临时文件未清理
+     - 扫描 workspace/memory/、workspace/skills/ 下 .txt / .md / .json / .py / .cjs 文件
+     - 重点检查 skills/子目录中是否有执行产物（如 results.json、temp_*.py、_temp_*）
+     - 检查是否有同名文件同时在 wiki 和 memory、skills 中存在
   3. 检查新下载制度的版本年份是否为最新
 OUTPUT: {
   wiki_dir_exists: boolean,
@@ -200,6 +228,31 @@ RULES:
 INPUT:  collected evidence
 ACTION: 逐原则自问（见 §4.3 原则问句表）
 OUTPUT: Array<{ principle: string, status, note }>
+```
+
+### 3.5a GOVERNANCE_ALIGN — 治理审计（新增）
+
+> 治理审计检查操作是否遵循了特权环分级策略，以及审计记录是否包含了完整的策略上下文。
+
+```
+INPUT:  collected evidence (含 governance_policy)
+ACTION:
+  1. 检查 governance_policy 是否存在且格式合法
+  2. 检查执行的各操作是否遵循了对应环级的约束
+     - Ring 2 操作是否有权责确认记录
+     - Ring 3 操作是否有石冰审批记录
+  3. 审计记录是否包含当时的策略上下文（策略版本、所属环级、批准依据）
+  4. 是否存在绕过策略引擎直接执行高环操作的情况
+OUTPUT: {
+  policy_valid: boolean,
+  ring_compliance: Array<{ operation: string, expected_ring: number, actual_ring?: number, compliant: boolean }>,
+  missing_audit_context: string[],
+  violations_found: number
+}
+RULES:
+  - 治理审计标记为 violations[].scope = '设计层' 或 '执行层'
+  - 不阻断流程
+  - governance_records 写入 AuditResult 供归档
 ```
 
 ### 3.6 LOAD_BENCHMARK
@@ -285,7 +338,19 @@ EMIT_FINDINGS:
 | 输出 | 纯净 | 报告只输出与当前决策直接相关的内容？含无关信息/元数据/跨域内容/自指标签/承诺预告/空表/冗余结构？ |
 | 输出 | 压缩 | token:信息比合理？有装饰性内容（emoji/分节/冗余描述）？能否用更少token传递相同信息？ |
 | 输出 | 优先 | 冲突时是否按安全>准确>纯净>效率裁决？ |
-| 输出 | 降熵 | 对话是否分主次？任务结束是否凝练回传而非堆砌历史？主会话是否只存结构化摘要？子会话是否承载具体任务？ |
+| 输出 | 降熵 | 对话是否分主次？任务结束是否凝练回传而非堆砌历史？主会话是否只存结构化摘要（3行以内）？子会话产出是否回传 DONE+路径+≤3行摘要？文件验证是否只查存在性不读全文？违反 → `[ENTROPY_VIOLATION]` |
+
+### 4.4 治理审计问句表（特权环对标）
+
+> 职责：问治理合规——操作遵守了特权环分级策略吗？审计记录完整吗？
+
+| 维度 | 审计问句 | 通过标准 |
+|:-----|:---------|:---------|
+| 策略存在 | governance policy 文件（`scripts/policy-engine/policy.json`）是否存在且格式合法？ | 存在 + 格式合法 |
+| 策略更新 | policy 版本是否与当前架构一致？（Ring 0-3 定义是否涵盖所有操作类别） | 覆盖当前操作 |
+| 环级合规 | 执行的操作是否遵循了对应环级的约束？（Ring 2 有权责确认轨迹、Ring 3 有石冰审批记录） | 100% 合规 |
+| 审计上下文 | 审计记录是否包含了当时的策略上下文？（策略版本、操作所属环级、批准依据） | 字段完整 |
+| 绕过检测 | 是否存在绕过策略引擎直接执行高环操作的情况？ | 无绕过 |
 
 ---
 
@@ -298,6 +363,10 @@ EMIT_FINDINGS:
 | 失败模式清单.json 缺失 | 跳过基准比对+继续 | `[基准集缺失]` |
 | archive.json 写入失败 | 降级到本地保存 | `[归档降级: 手动迁移]` |
 | AUDIT_LEARNINGS.md 提案写入冲突 | 追加新段落 | 无 |
+| **降熵契约违反** | 标记 + 记录到审计提案 | `[ENTROPY_VIOLATION]` |
+| governance policy 文件缺失 | 标记不可达+继续 | `[治理政策缺失]` |
+| 绕过特权环执行 | 标记 + 记录到审计提案 | `[GOVERNANCE_BYPASS]` |
+| Ring 2/3 操作缺权责确认记录 | 标记 + 记录到审计提案 | `[MISSING_APPROVAL_TRAIL]` |
 
 ---
 
@@ -316,6 +385,7 @@ EMIT_FINDINGS:
 
 | 版本 | 日期 | 变更 |
 |:-----|:-----|:------|
+| v4.6 | 2026-06-14 | 治理审计(GOVERNANCE_ALIGN)新增：特权环对标+策略存在性检查+环级合规检查+审计上下文完整性检查+绕过检测。AuditResult新增governance_records字段，记录操作时的策略上下文。 |
 | v4.5 | 2026-06-06 | SOLO 655：五原则升级——规则膨胀陷阱(基石) + 纯净/压缩/优先/降熵(输出四原则)。新增优先+降熵，主次分离控主会话token。同步SOUL.md |
 | v4.4 | 2026-06-02 | SOLO 654：新增第四原则「最小信号」— token效率审计，对标④权责两清+⑤惜文件如金。报告纯净原则扩展——从元数据→全维度无关信息过滤 |
 | v4.3 | 2026-06-02 | 新增file-structure scope：双轨存储同步审计 + Workspace文件管理约定引用 |
