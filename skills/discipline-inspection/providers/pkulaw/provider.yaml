@@ -1,0 +1,21 @@
+# PKULaw Provider — 北大法宝MCP版本验证
+# 需要 pkulaw-mcp 服务和 pkulaw-search 技能可用
+# 与 wiki-provider 叠加使用：wiki做全文检索，pkulaw做版本验证
+
+name: "pkulaw-provider"
+version: "1.0"
+description: "北大法宝MCP — 法规版本/时效性验证（现行有效/已修改/废止）"
+
+capabilities:
+  regulation_search: true       # ✅ 可通过北大法宝语义检索法规
+  version_verification: true    # ✅ 核心能力：验证法规现行有效性
+  case_search: false            # ❌ 指导性案例暂不可通过北大法宝获取
+
+degradation:
+  missing_version_verification: "N/A — 本provider的核心能力即版本验证"
+  note: "若 pkulaw-mcp 不可用（网络错误等），Agent 1b 将所有法规标记为 VERSION_UNVERIFIED。版本验证失败不阻断管线（降级标注），但管线产出会附加 ⚠️ 警告。"
+
+search:
+  engine: "pkulaw-mcp"
+  script: "${SKILL_DIR}/../pkulaw-search/scripts/pkulaw_search.py"
+  note: "需要 pkulaw-search 技能已安装 + pkulaw-mcp 服务运行中。"

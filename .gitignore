@@ -1,7 +1,12 @@
-# ⛔ 保密技能 — 不得上传 GitHub/ClawHub
+# ⛔ 保密技能（大监督体系）— 不得上传 GitHub/ClawHub
 skills/discipline-inspect/
+skills/hospital-inspection/
+skills/supervision-inspection/
 plugins/scene/discipline-inspect/
 plugins/scene/discipline-inspect.plugin.md
+
+# ⛔ WIKI法规库（含纪律/医药法规原文）
+wiki/
 
 # ⛔ 个人/机构敏感信息
 MEMORY.md
@@ -54,9 +59,9 @@ node_modules/
 .trash/
 *.tmp
 
-# cron�ڲ����ã���APIƾ֤��
+# cron�ڲ����ã���APIƾ֤��
 cron/
-# ��Ʋ㵵����������ִ�����ݣ�
+# ��Ʋ㵵����������ִ�����ݣ�
 memory/audit/
-# Cronִ����־
+# Cronִ����־
 cron/runs/

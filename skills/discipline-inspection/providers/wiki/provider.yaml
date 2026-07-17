@@ -1,0 +1,28 @@
+# Wiki Provider — 本地WIKI法规库
+# 需要有本地编译的 WIKI 法规库（45+部法规全文 + 11个指导性案例）
+# 设置 WIKI_PATH 环境变量指向 wiki/main/sources
+
+name: "wiki-provider"
+version: "1.0"
+description: "本地WIKI法规库 — ripgrep全文检索45+部法规 + 11个指导性案例 + 方法论文档"
+
+capabilities:
+  regulation_search: true       # ✅ 45+部法规全文 ripgrep 检索
+  version_verification: false   # 版本验证需叠加 pkulaw-provider
+  case_search: true             # ✅ 11个中纪委指导性案例
+  methodology_access: true      # ✅ 违规+有责双因素 + 意图对齐方法论
+
+degradation:
+  missing_version_verification: "VERSION_UNVERIFIED"
+  note: "WIKI库包含法规 frontmatter 版本标注，但版本时效性需 pkulaw-provider 交叉验证。无 pkulaw-provider 时，Agent 1b 产出 VERSION_UNVERIFIED。"
+
+search:
+  engine: "ripgrep"
+  base_path: "${WIKI_PATH}"
+  scopes:
+    discipline_laws: "${WIKI_PATH}/discipline/法规"
+    medical_laws: "${WIKI_PATH}/medical"
+    cases: "${WIKI_PATH}/discipline/指导性案例"
+    hospital: "${WIKI_PATH}/hospital-inspection"
+    inspection: "${WIKI_PATH}/inspection"
+    methodology: "${WIKI_PATH}/discipline/方法论"

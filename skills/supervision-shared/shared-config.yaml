@@ -1,0 +1,46 @@
+# Supervision Shared Config (大监督共享底座)
+# 被 DI / HI / SI 引用。修改路径只改此处，不用改三个SKILL.md。
+#
+# 🔌 v2.0: 环境变量驱动，去硬编码。
+# - WIKI_PATH: WIKI法规库根路径（默认: ~/.openclaw/wiki/main/sources）
+
+wiki:
+  base: "${WIKI_PATH}"
+  discipline: "${WIKI_PATH}/discipline/法规"
+  hospital: "${WIKI_PATH}/hospital-inspection"
+  inspection: "${WIKI_PATH}/inspection"
+  medical: "${WIKI_PATH}/medical"
+  methodology: "${WIKI_PATH}/discipline/方法论"
+  cases: "${WIKI_PATH}/discipline/指导性案例"
+
+search:
+  priority:
+    - ripgrep (wiki .md 4ms直达)
+    - Tavily（政府官网WAF绕过）
+    - web_search site:gov.cn 降级
+  fallback_chain:
+    - rg命令搜索wiki目录
+    - web_search 政府网站法规搜索
+    - 标注不可达
+
+scripts:
+  law_downloader: "${SKILL_DIR}/../../scripts/law-downloader.py"
+
+templates:
+  report_dir: "${SKILL_DIR}/../../reports"
+
+frameworks:
+  - name: 违规+有责双因素分析法（v2.0升级版）
+    skill: DI（主）+ SI/HI/CA（可借鉴）
+    reference: "${WIKI_PATH}/discipline/方法论/违规+有责两因素分析方法论.md"
+    description: 中纪委违纪构成理论+四件套增强框架。含激励相容（制度溯源）、柠檬市场（信号审计）、追责四层（分层归责）、非预期后果（风险预警）。适用于定性分析、归责定位、制度改进建议输出。
+  - name: 审前预判（社会学想象力）
+    skill: SI（主）+ CA
+    reference: skills/supervision-shared/审前预判_M5_社会学想象力.md
+    description: 米尔斯社会学想象力·区分个人困扰与公共议题。适用于受理和风险评估阶段，决定审查/分析深度。
+  - name: 政治体检四落实
+    skill: supervision-inspection
+    reference: "${WIKI_PATH}/inspection/"
+  - name: 三重点巡查框架
+    skill: hospital-inspection
+    reference: "${WIKI_PATH}/hospital-inspection/01_医院巡查工作手册_完整版_国卫医急发2023_39号.md"

@@ -1,0 +1,33 @@
+# Default Provider — 内置示例法规包
+# 仅用于 demo/测试/快速体验。完整使用需配置 wiki-provider 或 pkulaw-provider。
+
+name: "default-provider"
+version: "1.0"
+description: "内置示例法规包：3部核心法规 + 方法论文档。仅用于demo，不可用于真实案件分析。"
+
+capabilities:
+  regulation_search: true       # 可检索3部核心法规全文
+  version_verification: false   # ❌ 无北大法宝，无法验证版本时效性
+  case_search: false            # ❌ 无指导性案例
+  methodology_access: true      # ✅ 含违规+有责双因素分析方法论
+
+degradation:
+  missing_version_verification: "VERSION_UNVERIFIED"
+  note: >-
+    默认知识包仅含《纪律处分条例》《监察法》《政务处分法》三部法规全文
+    及违规+有责双因素分析方法论。无指导性案例，无法规版本验证能力。
+    
+    ⚠️ 使用本Provider产出的一切分析结果，法规版本时效性均未经PKULaw验证，
+    不可直接用于正式案件定性/处分建议。
+    
+    要获得完整能力，请配置:
+    1. wiki-provider: 设置 WIKI_PATH 环境变量指向本地WIKI法规库
+    2. pkulaw-provider: 配置北大法宝MCP服务
+
+search:
+  engine: "ripgrep"
+  base_path: "${SKILL_DIR}/providers/default/knowledge"
+  scopes:
+    discipline_laws: "${SKILL_DIR}/providers/default/knowledge/法规"
+    methodology: "${SKILL_DIR}/providers/default/knowledge/方法论"
+  note: "搜索范围仅限上述路径。git clone 后无需额外配置即可运行。"
