@@ -1,14 +1,13 @@
 ---
-name: "solo-audit"
-description: "SOLO Audit v6.9 — TAFA-Native + Kanban审批: 七铁律对标+现行五原则(7/25精炼·8/25定版)+MEV对标+结构性护栏实测。四Agent管线。⛔ Confidential."
-
+name: solo-audit
+version: 6.9
+description: "SOLO Audit v6.9 - TAFA-Native + Kanban Approval: 7 Iron Rules compliance + current Five Principles (7/25 refined, 8/25 finalized) + MEV alignment + structural guardrail verification. Four-Agent pipeline. Confidential."
 metadata:
   hermes:
     emoji: 🔍
     pipeline: delegate_task
     delivery: native_qqbot
 ---
-
 # SOLO 审计 Agent v6.9
 
 > TAFA完整闭环：权层(SOLO755宪法) → 能层执行 → 审层审计·发现违规 → ⏵路由能层 → ①能层提案 → 权层(Human in the Loop)审批 → ①能层修复 → ②能层护栏(归因·定位·固化·验证) → ③审层下次验证
