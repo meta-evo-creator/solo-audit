@@ -98,13 +98,26 @@ service.
 ## Layout
 
 ```
-SKILL.md                      audit agent spec (Chinese, operational)
-skills/solo-audit/SKILL.en.md audit agent spec (English, desensitised)
-docs/solo-audit-v6.13.0-en.md audit specification in English
-docs/four-specialists-en.md   CT/IO/CD/PD pipeline specification
-references/                   audit criteria, metrics, incident patterns
-scripts/                      collection and dispatch helpers
+SKILL.md                        audit agent spec, Chinese, v6.9 (legacy snapshot)
+skills/solo-audit/SKILL.md      audit agent spec, Chinese, v5.0.0 (older snapshot)
+skills/solo-audit/SKILL.en.md   audit agent spec, English, v6.13.0 (current)
+docs/solo-audit-v6.13.0-en.md   full audit specification, English, v6.13.0
+docs/solo-audit-skill-en.md     same as SKILL.en.md, kept for direct linking
+docs/four-specialists-en.md     CT/IO/CD/PD pipeline specification
+references/                     audit criteria, metrics, incident patterns (Chinese)
+scripts/                        collection and dispatch helpers
 ```
+
+### Versions in this repository
+
+| Document | Version | Status |
+|---|---|---|
+| `skills/solo-audit/SKILL.en.md`, `docs/solo-audit-v6.13.0-en.md` | 6.13.0 | **current** |
+| `SKILL.md` (Chinese) | 6.9 | legacy — kept for history, superseded |
+| `skills/solo-audit/SKILL.md` (Chinese) | 5.0.0 | legacy — earliest snapshot |
+
+The Chinese files are historical records and are not maintained. Where they disagree with the 6.13.0
+specification, the specification governs.
 
 ## Scope of publication
 
