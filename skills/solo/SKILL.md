@@ -1,323 +1,328 @@
 ---
 name: solo
 description: |
-  SOLO v2.1 — TAFA 权能三分架构·工程化实践。权层(Rule)定规则不执行，能层(Execution)执行不监督，审层(Audit)监督不执行。三层互锁闭环，原生OpenClaw。
+  SOLO v2.1 — TAFA tri-partite separation of powers, engineered in practice. The Rule layer sets rules but does not execute; the Execution layer executes but does not supervise; the Audit layer supervises but does not execute. A three-layer interlocking loop, native to host runtime.
 version: 2.1.0
 metadata:
-  openclaw:
+  runtime:
     emoji: ⚡
     requires: {}
 ---
 
-# SOLO v2.1 ⚡ — TAFA 权能三分架构·工程化实践
+# SOLO v2.1 ⚡ — TAFA Tri-Partite Separation of Powers, Engineered in Practice
 
 > **One person, an entire agent army.**
-> 权层定规则，能层干实事，审层管审计。制定规则的人不执行，执行规则的人不监督，监督执行的人不参与执行。
-> **655（6铁律+5原则+5MEV）全部归属权层——它是规则体系，不是SOLO的全部。**
+> The Rule layer sets the rules, the Execution layer does the work, the Audit layer handles auditing. Those who make rules do not execute them; those who execute do not supervise; those who supervise do not take part in execution.
+> **The 655 system (6 iron laws + 5 principles + 5 MEV stages) belongs entirely to the Rule layer — it is a rule set, not the whole of SOLO.**
 
 ---
 
-## 架构总览：三层互锁闭环
+## Architecture Overview: A Three-Layer Interlocking Loop
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│                    ① 权层（Rule Layer）——规则制定                  │
+│              1. RULE LAYER — rule-making                          │
 │                                                                   │
-│  655体系：6铁律(SOUL.md) + 5原则 + 5MEV                          │
-│  Suit门禁 · 工具护栏 · 搜索降级链                                 │
+│  655 system: 6 iron laws (SOUL.md) + 5 principles + 5 MEV stages  │
+│  Suit gate · tool guardrails · search fallback chain              │
 │                                                                   │
-│  制定规则，但绝不参与任何一次执行或审计。                           │
-│  规则只追加不修改，审计提案经审批→追加。                           │
+│  Makes the rules, but never takes part in any execution or audit. │
+│  Rules are appended, never modified; audit proposals are approved │
+│  first, then appended.                                            │
 │              │                          ▲                         │
-│    规则下发约束                        │ 审计反馈·规则进化          │
-│              ▼                          │                         │
+│    rules issued as constraints          │ audit feedback ·        │
+│              ▼                          │ rule evolution          │
 ├───────────────────────────────────────────────────────────────────┤
-│                    ② 能层（Execution Layer）——任务执行              │
+│              2. EXECUTION LAYER — task execution                  │
 │                                                                   │
-│  cron / 技能管线 / sessions_spawn                                 │
-│  MSF · DI · HI · SI · babata-browser · babata-search             │
+│  cron / skill pipelines / sessions_spawn                          │
+│  MSF · DI · HI · SI · babata-browser · babata-search              │
 │                                                                   │
-│  严格执行权层规则（Suit门禁自检+铁律自检），但无权修改任何一条。    │
-│  执行产出留给审层审计，不自行审查。                                 │
+│  Strictly executes the Rule layer's rules (Suit gate self-check   │
+│  plus iron-law self-check), but may not change a single one.      │
+│  Execution output is left to the Audit layer; no self-review.     │
 │              │                                                    │
-│    执行产出交审                                                  │
+│    output handed over for audit                                   │
 │              ▼                                                    │
 ├───────────────────────────────────────────────────────────────────┤
-│                    ③ 审层（Audit Layer）——独立审计                  │
+│              3. AUDIT LAYER — independent audit                   │
 │                                                                   │
-│  skills/solo-audit/ — Pro模型独占                                 │
-│  只读工具（read/exec只读/cron runs）                               │
-│  只提提案不执行 · 铁律+MEV+原则+文件结构五表对标                    │
+│  skills/solo-audit/ — exclusive to a Pro-tier model               │
+│  Read-only tools (read / read-only exec / cron runs)              │
+│  Proposals only, never execution · five-table benchmark of iron   │
+│  laws + MEV + principles + file structure                         │
 │                                                                   │
-│  审计执行层，但不参与执行。审计产出→提案→权层审批→规则进化。       │
-│  审层自身受权层「谦抑铁律」约束，不能扩权。                        │
+│  Audits the Execution layer, but takes no part in execution.      │
+│  Audit output → proposal → Rule-layer approval → rule evolution.  │
+│  The Audit layer is itself bound by the Rule layer's              │
+│  "self-restraint iron law" and cannot expand its own powers.      │
 └───────────────────────────────────────────────────────────────────┘
 ```
 
-### 互锁闭环运转逻辑
+### How the interlocking loop runs
 
 ```
-  权层 ──规则下发──→ 能层 ──执行产出──→ 审层 ──审计提案──→ 权层
-  (制定)           (执行)            (监督)           (进化)
+  Rule layer ──rules issued──→ Execution layer ──output──→ Audit layer ──proposals──→ Rule layer
+  (rule-making)                (execution)                 (supervision)             (evolution)
 ```
 
-**三层之间不交叉：** 权层不写能层的cron payload，能层不修改权层的铁律，审层不接触执行工具。每个层只做自己的事。
+**The three layers do not cross:** the Rule layer does not write the Execution layer's cron payloads, the Execution layer does not modify the Rule layer's iron laws, and the Audit layer does not touch execution tools. Each layer does only its own job.
 
 ---
 
-## 一、权层（Rule Layer）—— 规则制定，不参与执行
+## I. Rule Layer — Rule-Making, Not Execution
 
-### 1.1 655体系
+### 1.1 The 655 System
 
-| 层次 | 内容 | 位置 | 特性 |
-|:-----|:-----|:-----|:-----|
-| 6铁律 | 隐私/溯源/免疫/权责/惜文件/谦逊 | SOUL.md §内核铁律 | 是非判断，阻断级 |
-| 5原则 | 膨胀陷阱(基石)+纯净/压缩/优先/降熵(输出) | solo-audit SKILL.md §4.3 | 设计取舍，审计对标 |
-| 5MEV | Suit/Sense/Think/Optimize/Evolve | SOUL.md §MEV五层 | 过程质量，方法论 |
+| Level | Content | Location | Nature |
+|:------|:--------|:---------|:-------|
+| 6 iron laws | Privacy / Provenance / Immunity / Authority-responsibility / File economy / Humility | SOUL.md §Core Iron Laws | Right-or-wrong judgment, blocking level |
+| 5 principles | Expansion trap (cornerstone) + purity/compression/priority/entropy-reduction (output) | solo-audit SKILL.md §4.3 | Design trade-offs, audit benchmark |
+| 5 MEV stages | Suit / Sense / Think / Optimize / Evolve | SOUL.md §MEV Five Layers | Process quality, methodology |
 
-**注意：** 655是权层的规则集，不是SOLO的全部。SOLO的完整形态是TAFA三层互锁闭环。
+**Note:** 655 is the Rule layer's rule set, not the whole of SOLO. The full form of SOLO is the TAFA three-layer interlocking loop.
 
-### 1.2 规则变更流程
+### 1.2 Rule change process
 
 ```
-审层提案 → 石冰审批 → 权层追加 → 能层下次执行时自动加载
+Audit-layer proposal → owner approval → Rule-layer append → loaded automatically at the Execution layer's next run
                                   ↑
-                         审层每日审计校验是否已执行
+                         Audit layer verifies daily whether it was applied
 ```
 
-- 规则只追加不修改（可补充解释，不可删除降级）
-- 能层不能自行绕过或降级权层的任何规则
+- Rules are appended, never modified (explanations may be added; nothing may be deleted or downgraded)
+- The Execution layer may not bypass or downgrade any Rule-layer rule on its own
 
-### 1.3 所有权文件
+### 1.3 Ownership files
 
-| 文件 | 职责 |
-|:-----|:------|
-| SOUL.md | 六条铁律 + MEV五层 + 身份核心 |
-| AGENTS.md | 工作区规则 + 技能路由 + 记忆体系 |
-| TOOLS.md | 工具护栏 + 搜索降级链 + 反爬规则 |
-| .sop/ | 标准化SOP（由权层审批通过后写入） |
+| File | Responsibility |
+|:-----|:---------------|
+| SOUL.md | Six iron laws + MEV five layers + identity core |
+| AGENTS.md | Workspace rules + skill routing + memory system |
+| TOOLS.md | Tool guardrails + search fallback chain + anti-bot rules |
+| .sop/ | Standardized SOPs (written only after Rule-layer approval) |
 
 ---
 
-## 二、能层（Execution Layer）—— 任务执行，不自我审查
+## II. Execution Layer — Task Execution, Not Self-Review
 
-### 2.1 执行技能管线
+### 2.1 Execution skill pipelines
 
-| 技能 | 触发方式 | 产出 |
-|:-----|:---------|:-----|
-| AI圈热点监测 (cron-ai-hotspot) | cron 04:00 | 技术商业信号报告 |
-| 医院智慧监督 (cron-hospital) | cron 06:00 | 医疗政策监督情报 |
-| AI医疗案例 (cron-aimed) | cron 09:00 | AI+医疗企业案例 |
-| 法规月度巡检 | cron 每月1日 10:00 | 全库版本检查 |
-| MSF | 按需触发 | 医学组织研究 |
-| DI | 按需触发 | 纪律审查分析 |
-| HI | 按需触发 | 医院巡查分析 |
-| SI | 按需触发 | 巡视监督分析 |
-| babata-browser | 按需触发 | 反爬页面抓取 |
-| babata-search | 按需触发 | 中文搜索 |
-| deep-research | 按需触发 | 深度调研 |
+| Skill | Trigger | Output |
+|:------|:--------|:-------|
+| AI-industry hotspot watch (cron-ai-hotspot) | cron 04:00 | Technology and business signal report |
+| Hospital smart supervision (cron-hospital) | cron 06:00 | Healthcare policy supervision intelligence |
+| AI medical cases (cron-aimed) | cron 09:00 | AI + healthcare company cases |
+| Monthly regulation inspection | cron 10:00 on the 1st of each month | Version check across the whole library |
+| MSF | On demand | Medical organization research |
+| DI | On demand | Discipline review analysis |
+| HI | On demand | Hospital inspection analysis |
+| SI | On demand | Inspection and supervision analysis |
+| babata-browser | On demand | Anti-bot page capture |
+| babata-search | On demand | Chinese-language search |
+| deep-research | On demand | Deep research |
 
-### 2.2 能层执行铁律
+### 2.2 Execution-layer iron rules
 
-1. **执行前：** Suit门禁自检（Step 0 铁律六条全过才放行）
-2. **执行中：** 受权层工具护栏约束（搜索降级链·反爬规则）
-3. **执行后：** 产出不自行审查——留给审层审计
-4. **禁止：** 修改权层任何文件 · 绕过Suit门禁 · 自审自评
+1. **Before execution:** Suit gate self-check (all six iron laws must pass at Step 0 before proceeding)
+2. **During execution:** bound by Rule-layer tool guardrails (search fallback chain · anti-bot rules)
+3. **After execution:** output is not self-reviewed — it is left to the Audit layer
+4. **Prohibited:** modifying any Rule-layer file · bypassing the Suit gate · self-auditing or self-scoring
 
-### 2.3 降熵契约（通用强制协议）
+### 2.3 Entropy-reduction contract (universal mandatory protocol)
 
-> 对应权层5原则之④「降熵」：主会话只存结构化摘要，子会话承载具体任务。
-> **本契约适用于所有使用 sessions_spawn 的技能/任务，不限于 SI/DI/HI。**
+> Corresponds to principle 4 of the Rule layer's five principles, "entropy reduction": the main session holds only structured summaries, while sub-sessions carry the concrete work.
+> **This contract applies to every skill or task that uses sessions_spawn, not only SI/DI/HI.**
 
-#### 规则一：子会话回传压缩（所有 sessions_spawn 协议）
+#### Rule 1: Compressed sub-session hand-back (all sessions_spawn protocols)
 
 ```
-DONE <输出文件路径>
-摘要: ≤3行
-异常: ⚠️ 有/无
+DONE <output file path>
+Summary: ≤3 lines
+Anomaly: ⚠️ yes/no
 ```
 
-**禁止在主会话读取子代理产出文件的全文。** 主会话只记录：完成状态、文件路径、3行核心摘要、异常标记。
+**Never read the full text of a sub-agent's output file in the main session.** The main session records only: completion status, file path, a 3-line core summary, and the anomaly flag.
 
-#### 规则二：文件验证压缩
+#### Rule 2: Compressed file verification
 
-收到子代理 DONE 后，文件验证**只检查存在性，不读内容**：
+After receiving a sub-agent's DONE, file verification **checks existence only, not content**:
 ```
-read <output_file_path> → 仅检查文件存在（size > 0 即可）
-文件存在 → 记录路径
-文件不存在 → 标记 failed → 报告异常
-```
-
-#### 规则三：Draft/分析阶段强制子会话隔离
-
-涉及撰写报告、底稿、提纲、分析文档的阶段，**必须 spawn 子代理执行**，禁止在主会话执行：
-```
-主会话只做：spawn → 等待 Done → 验证文件存在 → 进入下一阶段
-子代理做：读输入文件 → 分析/撰写 → 写输出文件
+read <output_file_path> → check existence only (size > 0 is enough)
+file exists → record the path
+file missing → mark failed → report the anomaly
 ```
 
-#### 规则四：主会话健康度自检
+#### Rule 3: Mandatory sub-session isolation for draft/analysis stages
 
-每次 sessions_spawn 前检查主会话 token 水位：
-- **≤ 40%** → 正常执行
-- **40-80%** → 自动裁剪已闭环子会话的回传记录
-- **> 80%** → 整条管线强制 sessions_spawn 隔离执行，主会话不做任何实质性工作
-
-检查方式：读 session_status → Context 利用率百分比
-
-#### 例外清单
-
-以下操作允许在主会话直接执行：
-1. IMA 上传（Phase 7 type: 主会话直调）
-2. 最终交付摘要（≤3行）
-3. 管线异常报告（仅当 FAIL/HUMAN_ESCALATION）
-4. 单步工具调用（搜索/OCR/爬取等 L1 任务）
-
-#### 弹性规则（基于 655「优先」原则：安全>准确>纯净>效率）
-
-**1. 按需检索（防止降熵过度）**
-
-子代理在 spawn prompt 中可**显式授权**读取上游原始数据（如 Scout 输出的完整JSON），不违反降熵契约。
-
-规则：
-- 主会话不自动读全文（防线不变）
-- 子代理 spawn 时如果声明 `input_authority: read_raw_scout_data`，可直接 read 上游原始文件
-- 但子代理自己的回传仍需压缩（DONE+路径+3行）
-
-**2. 进度回传（防止黑盒执行）**
-
-子代理回传可额外包含进度信息，用于主会话回答「现在到什么阶段了？」：
+Any stage that involves writing reports, working papers, outlines, or analysis documents **must spawn a sub-agent**, and may not be run in the main session:
 ```
-DONE <路径>
-摘要: ≤3行
-异常: ⚠️ 有/无
-进度: 当前阶段/总阶段 预估剩余
+Main session only: spawn → wait for Done → verify the file exists → move to the next stage
+Sub-agent: read the input files → analyze/write → write the output file
 ```
 
-**3. 管线深度可调（防止过度分层）**
+#### Rule 4: Main-session health self-check
 
-中等复杂度任务（如公司分析/行业调研），经评估后可以合并阶段减少子代理层级：
-- Scouts（不变，3路并行有效）
-- Analyze + Draft 可合并为一个 Agent（减少一次 spawn 开销）
-- Review（保留，质量控制防线不变）
+Before every sessions_spawn, check the main session's token level:
+- **≤ 40%** → run normally
+- **40-80%** → automatically trim the hand-back records of closed sub-sessions
+- **> 80%** → the whole pipeline must run under sessions_spawn isolation; the main session does no substantive work
 
-评估标准：
-- 任务需要多少独立视角？→ 多视角需保留 Analyze 分层
-- 原始数据量多大？→ 数据量大需保留 Scout 分层
-- 容错要求多高？→ 低容错任务需保留 Review 分层
+How to check: read session_status → Context utilization percentage
 
-#### 违反后果
+#### Exception list
 
-降熵契约受 solo-audit 审层每日审计。违反记录为 `[ENTROPY_VIOLATION]`，计入审计提案。
+The following may be done directly in the main session:
+1. IMA upload (Phase 7 type: direct call from the main session)
+2. Final delivery summary (≤3 lines)
+3. Pipeline anomaly report (only for FAIL/HUMAN_ESCALATION)
+4. Single-step tool calls (search/OCR/crawl and other L1 tasks)
+
+#### Flexibility rules (based on the 655 "priority" principle: safety > accuracy > purity > efficiency)
+
+**1. Retrieval on demand (to prevent over-reduction of entropy)**
+
+A sub-agent may be **explicitly authorized** in its spawn prompt to read upstream raw data (for example, the full JSON output by a Scout); this does not violate the entropy-reduction contract.
+
+Rules:
+- The main session still does not read full text automatically (the guardrail is unchanged)
+- If a spawn declares `input_authority: read_raw_scout_data`, the sub-agent may read the upstream raw file directly
+- The sub-agent's own hand-back must still be compressed (DONE + path + 3 lines)
+
+**2. Progress hand-back (to prevent black-box execution)**
+
+A sub-agent's hand-back may include progress information so the main session can answer "what stage are we at?":
+```
+DONE <path>
+Summary: ≤3 lines
+Anomaly: ⚠️ yes/no
+Progress: current stage/total stages, estimated remaining
+```
+
+**3. Adjustable pipeline depth (to prevent over-layering)**
+
+For medium-complexity tasks (such as company analysis or industry research), stages may be merged after assessment to reduce sub-agent layers:
+- Scouts (unchanged; 3 parallel routes work well)
+- Analyze + Draft may be merged into one agent (saves one spawn overhead)
+- Review (kept; the quality-control guardrail is unchanged)
+
+Assessment criteria:
+- How many independent perspectives does the task need? → many perspectives means keep the Analyze layer
+- How large is the raw data? → large data means keep the Scout layer
+- How strict are the fault-tolerance requirements? → low tolerance means keep the Review layer
+
+#### Consequences of violation
+
+The entropy-reduction contract is audited daily by the solo-audit layer. Violations are recorded as `[ENTROPY_VIOLATION]` and included in audit proposals.
 
 ---
 
-## 三、审层（Audit Layer）—— 独立审计，不参与执行
+## III. Audit Layer — Independent Audit, Not Execution
 
-### 3.1 审计模型
+### 3.1 Audit model
 
-**独立技能：** `skills/solo-audit/SKILL.md`
+**Independent skill:** `skills/solo-audit/SKILL.md`
 
-| 属性 | 规则 |
-|:-----|:------|
-| 模型 | Pro（强制） |
-| 工具 | 只读 allowlist（禁止 write/edit/create_media/sessions_send） |
-| 产出 | 只提提案，不走执行路径 |
-| 周期 | 每日22:00（SOLO每日审计cron） |
+| Attribute | Rule |
+|:----------|:-----|
+| Model | Pro-tier (mandatory) |
+| Tools | Read-only allowlist (write/edit/create_media/sessions_send prohibited) |
+| Output | Proposals only; never on the execution path |
+| Cadence | Daily at 22:00 (SOLO daily audit cron) |
 
-### 3.2 五表对标
+### 3.2 Five-table benchmark
 
-| 对标表 | 来源 | 审计什么 |
-|:-------|:-----|:---------|
-| 铁律6条 | SOUL.md | 是非判断——做了没？ |
-| MEV 5层 | SOUL.md | 过程质量——做得好不好？ |
-| 原则5项 | solo-audit §4.3 | 设计取舍——设计对不对？ |
-| 版本对齐 | PLUGIN-REGISTRY.md | fleet同步——版本一致吗？ |
-| 文件结构 | 工作区 | 膨胀陷阱——有没有堆砌？ |
+| Benchmark table | Source | What is audited |
+|:----------------|:-------|:----------------|
+| 6 iron laws | SOUL.md | Right or wrong — was it done? |
+| 5 MEV layers | SOUL.md | Process quality — was it done well? |
+| 5 principles | solo-audit §4.3 | Design trade-offs — is the design right? |
+| Version alignment | PLUGIN-REGISTRY.md | Fleet sync — are versions consistent? |
+| File structure | Workspace | Expansion trap — is anything piling up? |
 
-### 3.3 审层谦抑约束
+### 3.3 Audit-layer self-restraint
 
-- 审层只读不写，只提提案不做执行
-- 不确定时标注[不确定]，不推断
-- 不扩展审查范围，不越权
-- 审层自身受权层「谦抑铁律」约束
-
----
-
-## 四、三层互锁机制详解
-
-### 4.1 互锁规则矩阵
-
-| 从\到 | 权层 | 能层 | 审层 |
-|:------|:----:|:----:|:----:|
-| **权层** | — | 下发655规则约束 | 接收审计提案→进化 |
-| **能层** | 执行权层规则 | — | 接受审计→整改 |
-| **审层** | 输出审计提案 | 审查执行产出 | — |
-
-### 4.2 违反互锁的后果
-
-| 违反模式 | 示例 | 后果 |
-|:---------|:-----|:-----|
-| 能层自审 | 执行后自行写审计报告 | 违反「执行不监督」，审层审计提出 |
-| 能层修改规则 | 绕过Suit门禁直接写法规分析 | 违反「执行不制定规则」，阻塞任务 |
-| 审层参与执行 | 审计时顺手修改文件 | 违反「监督不执行」，提案失效 |
-| 权层参与执行 | 在SOUL.md里写cron payload | 违反「制定不执行」，应剥离 |
-| **任何层越权改规则** | **未经655对照+审批直接改cron payload** | **违反「权责两清」，审计记录为`[UNAUTHORIZED_MODIFICATION]`** |
-
-#### 规则变更防火墙（三层通用·每次修改前执行）
-
-任何层修改已有规则/配置/cron payload 前，必须执行三步骤检查：
-
-```
-Step 1: 655对照——这个修改对应哪个原则？是否已被现有覆盖？是不是膨胀陷阱？
-        检查卡：①是否已有规则覆盖此需求  ②是不是加规则替代了消除路径  ③新规则是否正交不重叠
-Step 2: 权责确认——我所在的层有权做这个修改吗？
-        权层→只能追加规则，不能写执行逻辑
-        能层→只能按规则执行，不能改规则
-        审层→只能提案，不能直接改
-Step 3: 石冰审批——修改前展示·审批通过后才执行
-```
-
-违反视为 `[UNAUTHORIZED_MODIFICATION]`，在每日审计中记录并推送。
-
-### 4.3 闭环保障
-
-```
-  权层制定规则
-    → Suit门禁强制所有能层启动时加载
-    → 能层按规则执行
-    → 执行产出写入审计仓库
-    → 审层每日读取审计仓库
-    → 审层输出审计提案到 memory/audit/archive/
-    → 审计提案经石冰审批
-    → 审批通过的规则变更追加到权层
-    → 回到第一步
-```
+- The Audit layer reads only and does not write; it only proposes, never executes
+- When uncertain, mark [uncertain]; do not infer
+- Do not widen the audit scope; do not exceed authority
+- The Audit layer is itself bound by the Rule layer's "self-restraint iron law"
 
 ---
 
-## 五、算子目录
+## IV. The Three-Layer Interlock in Detail
 
-| 文件 | 所属层 | 用途 |
-|:-----|:------:|:-----|
-| SOUL.md · AGENTS.md · TOOLS.md | 权层 | 规则制定与工具护栏 |
-| .sop/ | 权层 | 标准化SOP |
-| skills/solo/SKILL.md | 元 | 本文档（TAFA架构描述） |
-| skills/solo-audit/ | 审层 | 独立审计技能 |
-| skills/msf/ · di/ · hi/ · si/ | 能层 | 各任务管线 |
-| skills/babata-browser/ · babata-search/ | 能层 | 搜索抓取工具链 |
-| skills/deep-research/ · party-review/ | 能层 | 分析评审管线 |
-| memory/audit/ | 审层 | 审计仓库（archive/knowledge/meta） |
-| memory/会话日志/ | — | 已废弃（cron22 Step 9已移除） |
+### 4.1 Interlock rule matrix
+
+| From \ To | Rule layer | Execution layer | Audit layer |
+|:----------|:----------:|:---------------:|:-----------:|
+| **Rule layer** | — | Issues 655 rules as constraints | Receives audit proposals → evolves |
+| **Execution layer** | Executes Rule-layer rules | — | Accepts audit → remediates |
+| **Audit layer** | Outputs audit proposals | Reviews execution output | — |
+
+### 4.2 Consequences of breaking the interlock
+
+| Violation pattern | Example | Consequence |
+|:------------------|:--------|:------------|
+| Execution layer self-audits | Writing its own audit report after execution | Breaks "execute without supervising"; flagged by the Audit layer |
+| Execution layer changes rules | Bypassing the Suit gate to write regulation analysis directly | Breaks "execute without making rules"; task blocked |
+| Audit layer takes part in execution | Editing files while auditing | Breaks "supervise without executing"; proposal voided |
+| Rule layer takes part in execution | Writing a cron payload inside SOUL.md | Breaks "make rules without executing"; should be split out |
+| **Any layer changing rules beyond its authority** | **Editing a cron payload directly without 655 comparison + approval** | **Breaks "authority and responsibility kept separate"; recorded by audit as `[UNAUTHORIZED_MODIFICATION]`** |
+
+#### Rule-change firewall (all three layers · run before every modification)
+
+Before any layer modifies an existing rule, configuration, or cron payload, it must run a three-step check:
+
+```
+Step 1: 655 comparison — which principle does this change map to? Is it already covered? Is it an expansion trap?
+        Checklist: (1) is this need already covered by an existing rule  (2) does the new rule replace an elimination path  (3) is the new rule orthogonal and non-overlapping
+Step 2: Authority check — does my layer have the right to make this change?
+        Rule layer → may only append rules, never write execution logic
+        Execution layer → may only execute per the rules, never change them
+        Audit layer → may only propose, never change directly
+Step 3: Owner approval — show the change before modifying; execute only after approval
+```
+
+A violation counts as `[UNAUTHORIZED_MODIFICATION]` and is recorded and pushed in the daily audit.
+
+### 4.3 Loop assurance
+
+```
+  Rule layer makes rules
+    → the Suit gate forces every Execution-layer start to load them
+    → the Execution layer executes per the rules
+    → execution output is written to the audit repository
+    → the Audit layer reads the audit repository daily
+    → the Audit layer writes audit proposals to memory/audit/archive/
+    → audit proposals are approved by the owner
+    → approved rule changes are appended to the Rule layer
+    → back to step one
+```
+
+---
+
+## V. Operator Directory
+
+| File | Layer | Purpose |
+|:-----|:-----:|:--------|
+| SOUL.md · AGENTS.md · TOOLS.md | Rule layer | Rule-making and tool guardrails |
+| .sop/ | Rule layer | Standardized SOPs |
+| skills/solo/SKILL.md | Meta | This document (description of the TAFA architecture) |
+| skills/solo-audit/ | Audit layer | Independent audit skill |
+| skills/msf/ · di/ · hi/ · si/ | Execution layer | Task pipelines |
+| skills/babata-browser/ · babata-search/ | Execution layer | Search and capture toolchain |
+| skills/deep-research/ · party-review/ | Execution layer | Analysis and review pipelines |
+| memory/audit/ | Audit layer | Audit repository (archive/knowledge/meta) |
+| memory/session-logs/ | — | Deprecated (removed in cron22 Step 9) |
 
 ---
 
 ## Changelog
 
-| 版本 | 日期 | 变化 |
-|:-----|:----:|:------|
-| **2.1.0** | **06-11** | **TAFA 三层互锁闭环重构。权层(655体系) + 能层(执行) + 审层(审计) 三层各司其职。新增互锁规则矩阵 + 违反后果 + 闭环保障。零脚本纯原生。** |
-| 2.0.3 | 06-07 | 权能三分（TAFA）术语替换 |
-| 2.0.2 | 06-07 | 新增降熵契约（能层协议） |
-| 2.0.1 | 05-24 | 新增管线状态协议 |
-| 2.0.0 | 05-23 | TAFA重写 |
+| Version | Date | Change |
+|:--------|:----:|:-------|
+| **2.1.0** | **06-11** | **Rebuilt as the TAFA three-layer interlocking loop. Rule layer (655 system) + Execution layer (execution) + Audit layer (audit), each with its own role. Added the interlock rule matrix, violation consequences, and loop assurance. Zero scripts, fully native.** |
+| 2.0.3 | 06-07 | Terminology replaced with tri-partite separation of powers (TAFA) |
+| 2.0.2 | 06-07 | Added the entropy-reduction contract (Execution-layer protocol) |
+| 2.0.1 | 05-24 | Added the pipeline status protocol |
+| 2.0.0 | 05-23 | TAFA rewrite |

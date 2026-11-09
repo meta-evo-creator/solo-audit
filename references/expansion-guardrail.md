@@ -1,31 +1,31 @@
-# 膨胀陷阱护栏 — 强制执行标准
+# Expansion Trap Guardrail — Enforced Standard
 
-> 五原则基石。不是提醒——是门禁。
+> Cornerstone of the five principles. Not a reminder — a gate.
 
-## 触发条件
+## Trigger condition
 
-修改以下文件前强制触发：SOUL.md / AGENTS.md / MEMORY.md / skill SKILL.md / agent .md
+Mandatory trigger before modifying these files: SOUL.md / AGENTS.md / MEMORY.md / skill SKILL.md / agent .md
 
-## 执行步骤
+## Execution steps
 
-修改前必须先输出：
+Before modifying, you must first output:
 
 ```
-我即将在 [文件] 中：
-  新增: [N]行 — [具体内容描述]
-  删除: [M]行 — [被替代的旧内容描述]
-  净变化: [N-M]行
-  原因: [为什么不能通过消路径解决？]
+I am about to make the following change in [file]:
+  Add: [N] lines — [description of the specific content]
+  Delete: [M] lines — [description of the old content being replaced]
+  Net change: [N-M] lines
+  Reason: [why this cannot be solved by removing a path?]
 ```
 
-## 门禁规则
+## Gate rules
 
-| 净变化 | 结果 |
+| Net change | Result |
 |:--:|:-----|
-| ≤0 | ✅ 压缩/重构 |
-| >0 有对应删除 | ✅ 替换 |
-| >0 无对应删除 | 🔴 膨胀—需审批 |
+| ≤0 | ✅ compression / refactor |
+| >0 with corresponding deletion | ✅ replacement |
+| >0 without corresponding deletion | 🔴 expansion — requires approval |
 
-## 案例（7/21-22）
+## Case (7/21-22)
 
-SOUL.md +42行→-42行 | solo-audit +70行→-70行 | DI refs 31→16文件 | Cron payload 去MEV矩阵
+SOUL.md +42 lines → -42 lines | solo-audit +70 lines → -70 lines | DI refs 31 → 16 files | Cron payload: MEV matrix removed

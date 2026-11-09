@@ -1,36 +1,36 @@
-# TAFA闭环 · 标准操作流程
+# TAFA Closed Loop · Standard Operating Procedure
 
-> 2026-07-23 首次完整闭环验证。从论文到SOP。
+> 2026-07-23, first complete closed-loop validation. From paper to SOP.
 
-## 闭环流程
+## Closed-loop flow
 
 ```
-审层启动         →  21:00 Pro模型自动审计
-  发现违规       →  P0(人工审批)/P1(自动提案)/OBS(仅记录)
-  ⏵ 路由         →  每条违规标注目标能层组件+建议修复
-能层响应         →  分析根因 → 提案修复方案 → 影响范围 → 回滚方案
-权层审批         →  Human in the Loop: "要"或"不行"
-能层执行         →  修复payload/代码/配置
-🛡️ 护栏沉淀      →  归因(错在哪)→定位(堵在哪)→固化(写进规则)→验证(真有效?)
-审层验证         →  下次审计检查上期违规是否复发
+Audit layer starts  →  21:00 Pro model runs the audit automatically
+  violation found   →  P0 (human approval) / P1 (automatic proposal) / OBS (record only)
+  ⏵ routing         →  each violation annotated with the target capability-layer component + suggested fix
+Capability layer responds → analyze root cause → propose fix plan → impact scope → rollback plan
+Authority-layer approval  →  Human in the Loop: "do it" or "no"
+Capability-layer execution → fix payload / code / config
+🛡️ Guardrail consolidation → attribution (where the error was) → localization (where to plug it) → consolidation (write into the rules) → verification (does it actually work?)
+Audit-layer verification  →  the next audit checks whether the previous period's violations recur
 
-超时规则：P1>24h→升P0 | 执行>12h→提醒 | 沉淀>48h→OBS
+Timeout rules: P1 >24h → escalate to P0 | execution >12h → remind | consolidation >48h → OBS
 ```
 
-## 各层职责（不越界）
+## Responsibilities of each layer (no crossing boundaries)
 
-| 层 | 做什么 | 不做什么 |
+| Layer | Does | Does not do |
 |:---|:------|:--------|
-| 审层(Pro·只读) | 审计·分级·路由·验证 | 改代码·提方案·越权执行 |
-| 能层(Flash·读写) | 分析·提案·执行·沉淀 | 审批·自行决断·跳过权层 |
-| 权层(石冰) | 审批"要/不行" | 定向·审计·自己修 |
+| Audit layer (Pro · read-only) | Audit · tier · route · verify | Modify code · propose plans · execute beyond authority |
+| Capability layer (Flash · read-write) | Analyze · propose · execute · consolidate | Approve · decide on its own · skip the authority layer |
+| Authority layer (the owner) | Approve "do it / no" | Direct · audit · fix by itself |
 
-## 先天限制
+## Inherent limitation
 
-审层=能层(同体·可可答)。缓解：Pro+只读+证据护栏。
-已是最佳方案。未来如有独立审层系统可升级。
+Audit layer = capability layer (same body, the answering agent). Mitigation: Pro + read-only + evidence guardrail.
+This is already the best available option. If an independent audit-layer system becomes available in the future, it can be upgraded.
 
-## 首次闭环记录
+## First closed-loop record
 
-SP-030 · 2026-07-23 22:48-23:10 · 15分钟
-3条P1 · 全部闭环 · 详见 memory/milestones/2026-07-23-tafa-first-loop.md
+SP-030 · 2026-07-23 22:48-23:10 · 15 minutes
+3 P1 items · all closed · see memory/milestones/2026-07-23-tafa-first-loop.md for details

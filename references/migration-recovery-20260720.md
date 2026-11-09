@@ -1,46 +1,46 @@
-# OpenClaw→Hermes 迁移损失恢复日志
+# host runtime → Hermes Migration Loss Recovery Log
 
-> 2026-07-20 | 巴巴塔
-> 每次平台迁移必然伴随知识损失。本文档记录从 OpenClaw 恢复的所有关键资产和教训。
+> 2026-07-20 | the agent
+> Every platform migration is inevitably accompanied by knowledge loss. This document records all critical assets and lessons recovered from host runtime.
 
-## 恢复的文件
+## Recovered files
 
-| 文件 | 路径 | 内容 |
+| File | Path | Content |
 |:-----|:-----|:-----|
-| HEARTBEAT.md | hermes/ | 舰队监控·文件预算·每日审计触发 |
-| MEMORY.md | hermes/ | WIKI唯一性护栏·审计同步规则·大监督共享 |
-| TOOLS.md | hermes/ | Tavily双Key轮换·搜索降级链·反爬规则 |
-| PLUGIN-REGISTRY.md | hermes/ | 技能最后触发时间 |
-| FLEET-CLUSTER.md | hermes/ | 技能三轴分类 |
-| IDENTITY.md | hermes/ | 身份核心 |
-| 约束效率平衡.md | memory/goals/ | 长期目标追踪 |
-| 2026-07-04-findings.json | memory/audit/findings/ | 审计发现(膨胀陷阱) |
-| SP-001-rejected.md | memory/audit/proposals/ | 驳回提案记录 |
-| SOLO体系更新v5.1 | memory/system/ | 关键方法论升级 |
-| forum-collaboration-sop.md | memory/system/ | Forum协作SOP |
-| workspace-file-management.md | memory/system/ | WIKI写入五守卫 |
+| HEARTBEAT.md | hermes/ | Fleet monitoring, file budget, daily audit trigger |
+| MEMORY.md | hermes/ | WIKI uniqueness guardrail, audit sync rules, shared supervision config |
+| TOOLS.md | hermes/ | Tavily dual-key rotation, search degradation chain, anti-scraping rules |
+| PLUGIN-REGISTRY.md | hermes/ | Last-trigger time per skill |
+| FLEET-CLUSTER.md | hermes/ | Three-axis skill classification |
+| IDENTITY.md | hermes/ | Identity core |
+| constraint-efficiency-balance.md | memory/goals/ | Long-term goal tracking |
+| 2026-07-04-findings.json | memory/audit/findings/ | Audit findings (expansion trap) |
+| SP-001-rejected.md | memory/audit/proposals/ | Rejected proposal record |
+| SOLO system update v5.1 | memory/system/ | Key methodology upgrade |
+| forum-collaboration-sop.md | memory/system/ | Forum collaboration SOP |
+| workspace-file-management.md | memory/system/ | WIKI write five guards |
 
-## 恢复的 cron
+## Recovered crons
 
-| cron | 描述 |
+| cron | Description |
 |:-----|:-----|
-| 法规周检（每周一08:00） | 5部核心法规版本检查，与月检互补 |
-| 每日临时文件清理（03:00） | /tmp/、桌面残留、delegation缓存 |
+| Weekly regulation check (Mondays 08:00) | Version check of 5 core regulations, complementary to the monthly check |
+| Daily temp-file cleanup (03:00) | /tmp/, desktop leftovers, delegation cache |
 
-## 硬化的护栏
+## Hardened guardrails
 
-| 护栏 | 文件 | 变化 |
+| Guardrail | File | Change |
 |:-----|:-----|:-----|
-| 防幻觉硬约束 | search-rg.md | 条款号必须从 rg 提取，禁凭记忆 |
-| 主体要件门禁 | search-rg.md | Step 1.5 恢复 |
-| Citation <80% REJECT | agent4-review.md (MSF) | 代码级 grep |
-| 谦逊检查 | agent4-review.md (MSF+DR) | 自动 REJECT |
-| Human Gate <65 | MSF+DR+DI SKILL.md | OPL 人因门禁 |
+| Anti-hallucination hard constraint | search-rg.md | Clause numbers must be extracted with rg; memory is forbidden |
+| Subject-element gate | search-rg.md | Step 1.5 restored |
+| Citation <80% REJECT | agent4-review.md (MSF) | Code-level grep |
+| Humility check | agent4-review.md (MSF+DR) | Automatic REJECT |
+| Human Gate <65 | MSF+DR+DI SKILL.md | OPL human-factor gate |
 
-## 核心教训
+## Core lessons
 
-1. **内存记忆 ≠ 文件事实** — 永远读源文件，不凭训练记忆
-2. **"知识库里有的，先看再用"** — 巡视底稿教训适用所有技能
-3. **rg 未命中 ≠ 法规不存在** — 必须走完整降级链
-4. **出问题先检查执行，不加规则** — AUDIT-20260704 核心发现
-5. **cron 改配置必须同步 prompt 版本号** — 2026-06-27 教训
+1. **In-memory recall ≠ file fact** — always read the source file, never rely on training memory
+2. **"If the knowledge base has it, look before you use it"** — the inspection working-paper lesson applies to every skill
+3. **rg no-match ≠ regulation does not exist** — the full degradation chain must be followed
+4. **When a problem appears, check execution first; do not add rules** — the core finding of AUDIT-20260704
+5. **Changing cron config must sync the prompt version number** — 2026-06-27 lesson

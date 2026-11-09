@@ -1,26 +1,26 @@
-# SOLO审计方法论演进（2026-07-24）
+# SOLO Audit Methodology Evolution (2026-07-24)
 
-## 三级分流（P0/P1/OBS）最终版
+## Three-level triage (P0/P1/OBS) final version
 
-| 等级 | 审批 | 超时 | 判定 |
+| Level | Approval | Timeout | Determination |
 |:----:|:----:|:----:|:-----|
-| 🔴P0 | 权层批方案 | 不过期·不自动升级 | 隐私·权责·数据丢失·生产 |
-| ⚠️P1 | 权层批方案 | >24h无审批→自动升P0 | 路径·格式·验证·阈值 |
-| 🔵OBS | — | 恶化→升P1 | 性能·趋势·非紧迫 |
+| 🔴P0 | Authority layer approves the plan | Never expires; no automatic escalation | Privacy, authority and accountability, data loss, production |
+| ⚠️P1 | Authority layer approves the plan | No approval for >24h → automatically escalated to P0 | Path, format, verification, threshold |
+| 🔵OBS | — | Deterioration → escalated to P1 | Performance, trend, non-urgent |
 
-P0和P1都需要权层审批后执行——区别在超时行为。P0永远等人，P1太久自动升级引起注意。
+Both P0 and P1 require authority-layer approval before execution — the difference is the timeout behavior. P0 waits forever; P1 escalates automatically after too long to draw attention.
 
-## 护栏式沉淀四步
+## Four steps of guardrail-style consolidation
 
-归因(错在哪)→定位(堵在哪)→固化(写进规则)→触发验证(真有效？)
-验证方式：每次护栏沉淀后，针对修复点做一次复测。
+Attribution (where the error was) → localization (where to plug it) → consolidation (write it into the rules) → trigger verification (does it actually work?)
+Verification method: after each guardrail consolidation, run one retest against the fix point.
 
-## DI硬阻断
+## DI hard block
 
-用户消息含"谈话手册/谈话提纲/审理建议/线索"关键词→禁止主会话直接回答→必须委托DI管线。
-自检："我的回答是不是DI事项？→如果是，停手。"
+If a user message contains the keywords "interview manual / interview outline / adjudication recommendation / clue" → the main session is forbidden to answer directly → it must delegate to the DI pipeline.
+Self-check: "Is my answer a DI matter? → If so, stop."
 
-## MEDIA路径护栏
+## MEDIA path guardrail
 
-Windows绝对路径：C:/Users/...（不带前置斜杠）。禁用/C:/Users/...格式。
-gateway日志"Skipping unsafe MEDIA directive path"=路径多了一个/。
+Windows absolute paths use the `<drive>:/\1` form (no leading slash). The `/<drive>:/\1` form is forbidden.
+A gateway log line "Skipping unsafe MEDIA directive path" means the path has one extra `/`.

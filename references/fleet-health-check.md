@@ -1,35 +1,35 @@
-# 舰队健康检查方法论
+# Fleet Health Check Methodology
 
-> 2026-07-21 复盘：SOUL.md solo fleet 表与 skills/ 目录不一致。
+> 2026-07-21 retrospective: the SOUL.md solo fleet table was inconsistent with the skills/ directory.
 
-## 问题
+## Problem
 
-本次检查发现舰队漂移：
+This check found fleet drift:
 
-| 方向 | 类型 | 发现 |
+| Direction | Type | Finding |
 |:-----|:-----|:------|
-| 表→磁盘 | ❌ 死链接 | `party-review`、`auto` — 表中有，磁盘无 |
-| 磁盘→表 | ❌ 遗漏 | `pkulaw-search`、`tyc-it` — 磁盘有，表中无 |
-| 磁盘→表 | ❌ 部分遗漏 | `zhihu-search` — 匹配表有，三轴簇列表无 |
+| Table → disk | ❌ dead link | `party-review`, `auto` — present in the table, absent from disk |
+| Disk → table | ❌ omission | `legal-db-search`, `tyc-it` — present on disk, absent from the table |
+| Disk → table | ❌ partial omission | `zhihu-search` — present in the matching table, absent from the three-axis cluster list |
 
-## 根因
+## Root cause
 
-只做了**单向验证**（表→磁盘），未做**反向验证**（磁盘→表）。单向检查能发现死链接，但发现不了未被注册的有效技能。
+Only **one-directional verification** (table → disk) was performed, not **reverse verification** (disk → table). One-directional checking finds dead links but cannot find valid skills that were never registered.
 
-## 正确流程
+## Correct procedure
 
 ```
-1. 列出 skills/ 下所有目录
-2. 列出 SOUL.md 三轴簇中的所有技能名
-3. 双向比对：
-   - 在表中但不在磁盘 → 死链接，需删除或修复
-   - 在磁盘但不在表中 → 未注册，需补充
-4. 技能匹配表也需同步更新
+1. List all directories under skills/
+2. List all skill names in the three-axis clusters of SOUL.md
+3. Compare both directions:
+   - In the table but not on disk → dead link, must be deleted or repaired
+   - On disk but not in the table → unregistered, must be added
+4. The skill matching table must also be updated in sync
 ```
 
-## 触发条件
+## Trigger conditions
 
-- 新增/删除技能后
-- SOUL.md 修改后
-- 定期审计
-- 发现技能 `skill_view` 报 unsupported 时（可能是注册问题）
+- After adding/removing a skill
+- After modifying SOUL.md
+- Periodic audit
+- When a skill's `skill_view` reports unsupported (possibly a registration problem)

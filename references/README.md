@@ -1,7 +1,7 @@
-# Solo-Audit 参考资料索引
+# Solo-Audit Reference Index
 
-补充文件放在 `references/` 下：
+Supplementary files live under `references/`:
 
-- `references/humility-pitfalls.md` — 审层谦抑实战教训: 三层归一的"伪TAFA"陷阱、铁律⑥谦逊的具体化约束
-- `references/655-metrics.md` — 三项新审计维度: 进化闭环率、膨胀自动检测、特权环合规
-- IMA KB IDs → 见 `skills/ima-skill/references/ima-kb-ids.md`
+- `references/humility-pitfalls.md` — practical lessons in audit-layer humility: the "pseudo-TAFA" trap of collapsing three layers into one, and the concrete constraints of Iron Rule 6 (humility)
+- `references/655-metrics.md` — three new audit dimensions: evolution closure rate, automatic expansion detection, privileged-ring compliance
+- IMA KB IDs → see `skills/ima-skill/references/ima-kb-ids.md`

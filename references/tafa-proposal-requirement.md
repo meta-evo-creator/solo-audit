@@ -1,30 +1,30 @@
-# TAFA闭环：审计报告→提案 完整要求
+# TAFA Closed Loop: Complete Requirement from Audit Report to Proposal
 
-> 2026-07-24 石冰纠正。v8.3→v8.4 升级核心。
+> 2026-07-24 correction by the owner. Core of the v8.3 → v8.4 upgrade.
 
-## 问题
+## Problem
 
-审计 v8.3 报告列出违规（P0/P1/OBS），标注"⏵路由至能层[xxx]"，但未生成具体可执行提案。
-石冰："没明白TAFA闭环的意思吗？每日审计给了审计报告外，还要路由到各能层，给对应提案。"
+Audit v8.3's report listed violations (P0/P1/OBS) and annotated "⏵ route to capability layer [xxx]", but did not generate a concrete executable proposal.
+The owner: "Don't you understand what the TAFA closed loop means? Beyond giving an audit report, the daily audit also has to route to each capability layer and give the corresponding proposal."
 
-## 修正：v8.4 审计输出格式
+## Correction: v8.4 audit output format
 
-每条违规必须附带：
+Every violation must be accompanied by:
 
-| 等级 | 提案必须含 | 示例 |
+| Level | Proposal must contain | Example |
 |:----:|:----------|:-----|
-| 🔴 P0 | 文件路径·具体改动·影响范围 | `config.yaml:2 — default: deepseek-v4-pro → deepseek-v4-flash` |
-| ⚠️ P1 | 文件路径·改动建议·超时时间 | `PLUGIN-REGISTRY.md — 补充 solo-fleet 条目·>24h→升P0` |
-| 🔵 OBS | 仅记录·恶化升级条件 | `恶化条件: 注入预算>35KB→升P1` |
+| 🔴 P0 | File path · specific change · impact scope | `config.yaml:2 — default: the Pro-tier model → the fast-tier model` |
+| ⚠️ P1 | File path · change suggestion · timeout | `PLUGIN-REGISTRY.md — add solo-fleet entry · >24h → escalate to P0` |
+| 🔵 OBS | Record only · deterioration escalation condition | `Deterioration condition: injection budget >35KB → escalate to P1` |
 
-## 提案模板
+## Proposal template
 
 ```
-⏵ **路由至**: 能层[具体执行体]
-📋 **提案内容**: [具体操作步骤·文件路径·预期效果]
-⏱️ **建议执行**: [立即/24h内/下次审计前]
+⏵ **Routed to**: capability layer [specific executing component]
+📋 **Proposal content**: [specific operation steps · file path · expected effect]
+⏱️ **Recommended execution**: [immediately / within 24h / before the next audit]
 ```
 
-## 验证
+## Verification
 
-2026-07-24 21:40 审计 v8.4 首次附带提案运行。P001/P002/P003/P004 全部含具体路径+操作步骤+时效。
+2026-07-24 21:40, audit v8.4 ran with proposals attached for the first time. P001/P002/P003/P004 all contained specific paths + operation steps + time limits.

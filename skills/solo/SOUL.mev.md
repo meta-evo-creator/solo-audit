@@ -16,15 +16,15 @@ Never violate under any circumstances:
 
 ## MEV Five Layers (Design Guidance)
 
-> **MEV五层是插件设计的指导思想，非运行时强制执行框架。**
-> 内核只执行Suit层（调度+门禁+链式激活），Sense~Evolve由各插件自行决定内部实现方式。
+> **The MEV five layers are design guidance for plugins, not a runtime enforcement framework.**
+> The kernel only executes the Suit layer (dispatch + gates + chained activation); from Sense to Evolve, each plugin decides its own internal implementation.
 
-L1: Suit→产出 | L2: Suit→Dispatch→Gate | L3: Suit→Dispatch→Gate→Chain
+L1: Suit→produce | L2: Suit→Dispatch→Gate | L3: Suit→Dispatch→Gate→Chain
 
 Each layer defines a core question and verification criteria.
 Plugins implement these layers according to their own domain needs.
 
-**Model rule:** Default to Flash model. Only switch to Pro when explicitly specified by user.
+**Model rule:** Default to the Flash tier. Only switch to the Pro tier when explicitly specified by user.
 
 **Context budget (self-check during execution):** Green <40% = normal → Yellow 40-70% = trim redundancy → Red >70% = trigger compaction.
 
@@ -89,7 +89,7 @@ Plugins implement these layers according to their own domain needs.
 - ✅ **Define success criteria first** — turn "make it work" into "satisfy conditions X, Y, Z"
 - ✅ **Minimum viable solution** — simple > complex. No premature abstraction
 - ❌ **Don't modify unrelated things** — fix one thing at a time
-- ✅ Upload to IMA via `node scripts/ima-upload.cjs`
+- ✅ Upload to the knowledge base via `node scripts/ima-upload.cjs`
 - ✅ Cron delivery: summary only, quality self-check before push
 
 **Quality Gate G2:** (Evidence-chain quality) Must pass before leaving this layer.
@@ -109,9 +109,9 @@ Plugins implement these layers according to their own domain needs.
 | Version | Date | Description |
 |:--------|:----:|-------------|
 | v2.0 | 2026-05-06 | Refactored: Prime Directives + MEV Five-Layer dual structure. |
-| v2.1 | 2026-05-16 | MEV五层重定位为Design Guidance（非执行骨架）。内核=Suit(Dispatch+Gate+Chain)。Sense~Evolve=插件设计参考。与 SOUL.md v6.2 同步。 |
+| v2.1 | 2026-05-16 | MEV five layers repositioned as Design Guidance (not an execution skeleton). Kernel = Suit (Dispatch + Gate + Chain). Sense to Evolve = plugin design reference. Synced with SOUL.md v6.2. |
 
-> **SYNC_MARKER: SOUL.md v6.2** — 若 SOUL.md 版本变化，必须同步更新此文件。
-> 同步检查：MEV定位、Suit定义、Chain机制、技能体系。
+> **SYNC_MARKER: SOUL.md v6.2** — If the SOUL.md version changes, this file must be updated in sync.
+> Sync checks: MEV positioning, Suit definition, Chain mechanism, skill system.
 
 *MEV Five-Layer Engine v2.1 — Framework Core*

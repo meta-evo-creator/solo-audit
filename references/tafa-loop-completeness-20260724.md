@@ -1,18 +1,18 @@
-# TAFA闭环完整性 — 2026-07-24 实战教训
+# TAFA Closed-Loop Completeness — 2026-07-24 Field Lesson
 
-## 问题
-审计 cron v8.3 执行后只输出违规列表，没有路由到能层生成可执行提案。
-用户纠正：审计报告≠完成，报告后必须附加路由提案。
+## Problem
+After the audit cron v8.3 ran, it only output a violation list and did not route to the capability layer to generate executable proposals.
+User correction: an audit report ≠ completion; after the report, routing proposals must be attached.
 
-## 修复
-v8.4 升级——每次审计产出必须附带：
-- 每条违规 ⏵ 路由至具体能层
-- 📋 可执行提案（文件路径·操作步骤·时效）
-- ⏱️ 建议执行时间
+## Fix
+v8.4 upgrade — every audit output must be accompanied by:
+- ⏵ routing of each violation to a specific capability layer
+- 📋 executable proposal (file path · operation steps · time limit)
+- ⏱️ recommended execution time
 
-## 完整闭环
+## Complete closed loop
 ```
-审层审计 → 发现违规 → ⏵路由能层 → 能层提案 → 权层审批
-  → 能层执行 → 能层护栏 → 审层下次验证
+Audit-layer audit → violation found → ⏵ route to capability layer → capability-layer proposal → authority-layer approval
+  → capability-layer execution → capability-layer guardrail → next audit-layer verification
 ```
-缺任一步 = 闭环断裂。
+Missing any step = the closed loop is broken.

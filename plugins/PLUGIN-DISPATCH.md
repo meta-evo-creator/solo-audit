@@ -1,67 +1,67 @@
-# Plugin Dispatch System  
-> SOLO v1.0 — 内核精确定址机制 + 法纪自动升级  
-> 位置：Suit 层 Step 0.5（在预检之后、五层执行之前）
+# Plugin Dispatch System
+> SOLO v1.0 — kernel-level precise targeting + automatic legal-and-discipline escalation
+> Position: Suit layer, Step 0.5 (after pre-checks, before the five-layer execution)
 
-## 内核级规则（不可跳过）
+## Kernel-Level Rules (cannot be skipped)
 
-**法纪自动升级**：任务含任一法纪关键词 → 任务等级至少 L2。此规则在 Dispatch 之前执行。
+**Automatic legal-and-discipline escalation**: if a task contains any legal-and-discipline keyword, its tier is at least L2. This rule runs before Dispatch.
 
-法纪关键词表：`{纪检, 监察, 纪律, 法务, 法规, 处分, 问责, 巡视, 巡察, 党纪, 政纪, 八项规定, 四风, 三重一大}`
+Legal-and-discipline keyword set: `{discipline inspection, supervision, discipline, legal affairs, regulations, sanctions, accountability, inspection, patrol, party discipline, administrative discipline, Eight-Point Regulation, four malfeasances, triple major and one large}`
 
 ---
 
-## 工作原理
+## How It Works
 
-任务进入 Suit 层时，遍历所有非 dormant 插件的 `trigger_fingerprint`，按关键词 + 反关键词 + 任务级别 + 优先级四维匹配，输出激活清单。
+When a task enters the Suit layer, the kernel walks the `trigger_fingerprint` of every non-dormant plugin and matches on four dimensions — keywords + anti-keywords + task tier + priority — then outputs an activation list.
 
-## Dispatch 流程
+## Dispatch Flow
 
 ```
-任务输入
+Task input
   │
-  ├─ Step 0: Kernel Boot (OpenClaw 原生 session startup)
+  ├─ Step 0: Kernel Boot (native host runtime session startup)
   │
   ├─ Step 0.5: Plugin Dispatch
   │     │
-  │     ├─ 1. 扫描所有 active/ + scene/ 插件的 trigger_fingerprint
-  │     ├─ 2. 对每个插件进行四维匹配：
-  │     │     [keywords ∩ 任务词汇] ≠ ∅  AND
-  │     │     [anti_keywords ∩ 任务词汇] = ∅  AND
-  │     │     [任务tier ∈ task_types]          AND
-  │     │     [无更高priority的同功能插件冲突]
-  │     ├─ 3. 候选插件按 priority 排序
-  │     ├─ 4. 输出激活清单
-  │     └─ 5. 显式标注：
+  │     ├─ 1. Scan the trigger_fingerprint of all active/ + scene/ plugins
+  │     ├─ 2. Four-dimension match per plugin:
+  │     │     [keywords ∩ task terms] ≠ ∅  AND
+  │     │     [anti_keywords ∩ task terms] = ∅  AND
+  │     │     [task tier ∈ task_types]          AND
+  │     │     [no higher-priority plugin with the same function conflicts]
+  │     ├─ 3. Sort candidate plugins by priority
+  │     ├─ 4. Output the activation list
+  │     └─ 5. Label explicitly:
   │         🔌 Dispatch: med-research(p5) + stage-checkpoint(p8) + deep-research(p3)
   │
-  └─ Step 1-5: 五层正常执行
+  └─ Step 1-5: Normal five-layer execution
 ```
 
-## 匹配规则
+## Matching Rules
 
-| 规则 | 说明 |
-|:-----|:-----|
-| **命中优先** | 只要 keywords 中任一词命中任务核心描述，即为候选 |
-| **反排除** | anti_keywords 中任一词出现→立即排除该插件 |
-| **级别限定** | 插件只在其声明的 task_types 范围内激活 |
-| **优先级裁决** | 两个同类插件都匹配时，priority 高的胜出 |
-| **强制激活** | stage-checkpoint 在 L2/L3/Cron 中 priority=10，不可被覆盖 |
+| Rule | Description |
+|:-----|:------------|
+| **Hit wins** | If any keyword hits the task's core description, the plugin becomes a candidate |
+| **Anti-exclusion** | If any anti_keyword appears, the plugin is excluded immediately |
+| **Tier restriction** | A plugin activates only within the task_types it declares |
+| **Priority arbitration** | When two plugins of the same kind both match, the higher priority wins |
+| **Forced activation** | stage-checkpoint has priority=10 for L2/L3/Cron and cannot be overridden |
 
-## Chain 机制（v7.1 新增）
+## Chain Mechanism (new in v7.1)
 
-插件输出 JSON 中含 `trigger_next` 字段 → 内核自动 Dispatch 下一个插件。
+If a plugin's output JSON contains a `trigger_next` field, the kernel dispatches the next plugin automatically.
 
 ```
-插件A 输出: { result, quality, trigger_next: "政法分析" }
-  → 内核 Gate 检查 quality 达标 → Dispatch 政法分析
+Plugin A output: { result, quality, trigger_next: "policy analysis" }
+  → kernel Gate checks that quality passes → Dispatch policy analysis
 ```
 
-典型链: deep-research → 政法评估（政策评估）
-编排器: policy-eval 插件（L3/priority 4）
+Typical chain: deep-research → policy assessment (policy evaluation)
+Orchestrator: policy-eval plugin (L3/priority 4)
 
-## 指纹格式
+## Fingerprint Format
 
-每个 `.plugin.md` 文件头部新增 `trigger_fingerprint` 块：
+Each `.plugin.md` file gains a `trigger_fingerprint` block at the top:
 
 ```yaml
 # trigger_fingerprint:
@@ -73,22 +73,22 @@
 #   force_activate: true/false
 ```
 
-| 字段 | 说明 |
-|:-----|:-----|
-| keywords | 触发该插件的关键词/短语 |
-| anti_keywords | 排除词——任务含这些词时插件不激活 |
-| patterns | 场景模式——比关键词更精准的模式匹配 |
-| task_types | 允许的 MEV 级别：[L1, L2, L3] |
-| priority | 优先级 1-10（10=系统级强制） |
-| force_activate | 是否无视所有匹配规则、必须激活 |
+| Field | Description |
+|:------|:------------|
+| keywords | Keywords/phrases that trigger the plugin |
+| anti_keywords | Exclusion words — the plugin stays inactive if the task contains them |
+| patterns | Scene patterns — more precise matching than keywords |
+| task_types | Allowed MEV tiers: [L1, L2, L3] |
+| priority | Priority 1-10 (10 = system-level forced) |
+| force_activate | Whether to ignore all matching rules and activate regardless |
 
-## 与人脑判断的关系
+## Relationship to Human Judgment
 
-Dispatch 不是取代人的判断——是**缩小候选集**。最终激活清单是建议，人可手动增删。格式：
+Dispatch does not replace human judgment — it **narrows the candidate set**. The final activation list is a recommendation; a human may add or remove entries manually. Format:
 
 ```
 🔌 Dispatch: med-research(p5) + stage-checkpoint(p8)
-📋 候选但未激活: deep-research(p3) — 与 med-research 功能重叠
-❌ 排除: compliance-research(无关键词命中) | bias-check(priority低于med-research)
-✋ 用户可否: 回复 "+deep-research" 或 "-med-research" 手动调整
+📋 Candidate but not activated: deep-research(p3) — overlaps with med-research
+❌ Excluded: compliance-research(no keyword hit) | bias-check(priority below med-research)
+✋ User can: reply "+deep-research" or "-med-research" to adjust manually
 ```

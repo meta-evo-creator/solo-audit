@@ -1,9 +1,9 @@
 # SOLO ⚡ — Solo Operating Legion
 
 > **One person, an entire agent army.**
-> Architecture: Kernel + Skills (OpenClaw engine + skills/ directory)
+> Architecture: Kernel + Skills (host runtime engine + skills/ directory)
 
-SOLO is the meta-agent that watches the fleet. OpenClaw is the engine.
+SOLO is the meta-agent that watches the fleet. host runtime is the engine.
 
 ## Architecture
 
@@ -23,7 +23,7 @@ SOLO is the meta-agent that watches the fleet. OpenClaw is the engine.
 ## Install
 
 ```bash
-git clone https://github.com/meta-evo-creator/solo-fleet.git
+git clone https://github.com/<org>/solo-fleet.git
 ```
 
 ## MEV Five Layers

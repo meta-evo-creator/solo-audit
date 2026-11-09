@@ -1,19 +1,19 @@
-# OpenClaw 教训全量吸收记录
+# host runtime Lessons: Full Absorption Record
 
-> 2026-07-20 Hermes 迁移后首次全量研读
+> 2026-07-20, first full study session after the Hermes migration
 
-## 已吸收教训（8条·已内部化）
+## Absorbed lessons (8 items, internalized)
 
-| ID | 来源 | 核心教训 | 内置位置 |
+| ID | Source | Core lesson | Internalized at |
 |:--|:-----|:---------|:---------|
-| L-01 | 巡视底稿教训 | 知识库里有的，先看再用 | DI references/knowledge-first-gate.md |
-| L-02 | 降熵复盘 | 子代理回传≤3行导致数据丢失 | 进度可见性已补 |
-| L-03 | SOLO复盘 L2 | Suit 只做铁律+路由 | AGENTS.md v2.7 |
-| L-04 | SOLO复盘 L3 | 路径收敛不依赖 cwd | 绝对路径协议 |
-| L-05 | 诫勉复盘 三问 | 法规引用做主体/签字/场景拆解 | DI references/knowledge-first-gate.md |
-| L-06 | 诫勉复盘 降级 | rg 未命中≠法规不存在 | 工具降级链强制执行 |
-| L-07 | cron 协议同步 | 改配置必须同步 prompt 版本号 | HEARTBEAT.md 审计范围同步 |
-| L-08 | 发票填单 | 先排序再写入，逐字段 PDF 校验 | 通用交付门禁 |
+| L-01 | Inspection working-paper lesson | If the knowledge base has it, look before you use it | DI references/knowledge-first-gate.md |
+| L-02 | Entropy-reduction retrospective | Subagent reporting back ≤3 lines caused data loss | Progress visibility supplemented |
+| L-03 | SOLO retrospective L2 | Suit only handles iron rules + routing | AGENTS.md v2.7 |
+| L-04 | SOLO retrospective L3 | Path convergence must not depend on cwd | Absolute-path protocol |
+| L-05 | Admonition retrospective, three questions | Break regulation citations down by subject / signature / scenario | DI references/knowledge-first-gate.md |
+| L-06 | Admonition retrospective, degradation | rg no-match ≠ regulation does not exist | Tool degradation chain enforced |
+| L-07 | cron protocol sync | Changing config must sync the prompt version number | HEARTBEAT.md audit scope sync |
+| L-08 | Invoice form filling | Sort before writing; validate every field against the PDF | General delivery gate |
 
-## 未内置项
-- 文件管理SOP G-01~G-05（WIKI 五守卫）→ 等待 WIKI 规范化任务触发
+## Not yet internalized
+- File-management SOP G-01~G-05 (WIKI five guards) → waiting for the WIKI standardization task to trigger

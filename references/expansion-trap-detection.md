@@ -1,26 +1,26 @@
-# 规则膨胀陷阱检测模式
+# Rule Expansion Trap Detection Pattern
 
-> 来源：AUDIT-20260704 审计发现
-> 适用：solo-audit 每日审计 §3.2 VERIFY
+> Source: AUDIT-20260704 audit findings
+> Applies to: solo-audit daily audit §3.2 VERIFY
 
-## 检测信号
+## Detection signals
 
-以下模式表明可能正在经历"规则膨胀陷阱"：
+The following patterns indicate that a "rule expansion trap" may be underway:
 
-1. **同一违规跨周复现** — 15天内同一类型 violation 出现≥3次且未见改善
-2. **设计层修补未改变执行指标** — 新规则/护栏添加后，相关指标无变化（如 session 膨胀率、citation 准确率）
-3. **规则添加频率 > 执行验证频率** — 对比 session 中 `patch` 调用次数与 `rg` 验证调用次数
+1. **The same violation recurs across weeks** — the same type of violation appears ≥3 times within 15 days with no improvement
+2. **Design-layer patching does not change execution metrics** — after a new rule/guardrail is added, the related metrics do not change (e.g. session expansion rate, citation accuracy)
+3. **Rule-addition frequency > execution-verification frequency** — compare the number of `patch` calls in a session with the number of `rg` verification calls
 
-## 检测方法
+## Detection method
 
 ```
-1. 对比本次审计 violations 与 30天前 violations 的重叠度
-2. 若重叠 > 30% → 标记 [EXPANSION_TRAP_CHECK]
-3. 检查重叠项是否有对应的新规则/护栏
-4. 若有新规则但无改善 → 升级为 [EXPANSION_TRAP_CONFIRMED]
+1. Compare the overlap between this audit's violations and those from 30 days ago
+2. If overlap > 30% → mark [EXPANSION_TRAP_CHECK]
+3. Check whether the overlapping items have a corresponding new rule/guardrail
+4. If a new rule exists but there is no improvement → escalate to [EXPANSION_TRAP_CONFIRMED]
 ```
 
-## 响应
+## Response
 
-- [EXPANSION_TRAP_CONFIRMED] → 提案类型改为"消路径"，目标不是加规则而是删除产生问题的路径
-- 提案中必须包含："现有 X 规则已覆盖此问题，根因在执行层而非设计层"
+- [EXPANSION_TRAP_CONFIRMED] → change the proposal type to "path removal"; the goal is not to add rules but to delete the path that produces the problem
+- The proposal must include: "The existing rule X already covers this problem; the root cause is in the execution layer, not the design layer"

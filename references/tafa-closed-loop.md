@@ -1,22 +1,22 @@
-# TAFA完整闭环检查清单 · 2026-07-24
+# TAFA Complete Closed-Loop Checklist · 2026-07-24
 
-> solo-audit v6.3 · TAFA闭环重新关联
+> solo-audit v6.3 · TAFA closed loop re-linked
 
-## 完整循环
+## Complete cycle
 
-权层定规则(755) → 能层执行(cron/DI) → 审层审计(Pro)
-  → ⏵路由能层 → ①能层提案 → 权层审批(Human in the Loop)
-  → ①能层修复 → ②能层护栏(归因·定位·固化·验证)
-  → ③审层下次验证
+Authority layer sets rules (755) → Capability layer executes (cron/DI) → Audit layer audits (Pro)
+  → ⏵ route to capability layer → ① capability-layer proposal → authority-layer approval (Human in the Loop)
+  → ① capability-layer fix → ② capability-layer guardrail (attribution · localization · consolidation · verification)
+  → ③ next audit-layer verification
 
-## 三层不交叉
+## The three layers do not overlap
 
-- 权层：定规则·不定向能层做什么
-- 能层：执行+提案+护栏·不自己改规则  
-- 审层：审计·路由·验证·不修代码
+- Authority layer: sets rules; does not direct what the capability layer does
+- Capability layer: executes + proposes + guardrails; does not change rules itself
+- Audit layer: audits · routes · verifies; does not fix code
 
-## 🔴 TAFA审批即执行护栏
+## 🔴 TAFA approval-equals-execution guardrail
 
-权层说"通过/可以/要/行"=能层立即执行修复+护栏沉淀·不等二次指令。
-不是"收到"——是"已修·看结果"。
-**教训**：2026-07-24审计→石冰说"提案通过"→可可答说"已闭环"但未执行→权层纠正。
+When the authority layer says "approved / go ahead / do it / fine" = the capability layer immediately executes the fix + guardrail consolidation, without waiting for a second instruction.
+It is not "received" — it is "fixed, see the result".
+**Lesson**: 2026-07-24 audit → the owner said "proposal approved" → the agent answered "closed" but did not execute → the authority layer corrected it.

@@ -1,23 +1,23 @@
-# SOLO审计 v6.3 · TAFA完整闭环实战
+# SOLO Audit v6.3 · TAFA Complete Closed-Loop in Practice
 
-> 2026-07-24 · 首次TAFA闭环压力测试 · 2P0+4P1+5OBS
+> 2026-07-24 · first TAFA closed-loop stress test · 2 P0 + 4 P1 + 5 OBS
 
-## 闭环过程
+## Closed-loop process
 
-1. 审层发现 → v8.3审计报告: P0-001(审计断链) + P0-002(双注册表)
-2. 路由能层 → 每条违规标注⏵能层[x]
-3. 能层提案 → 审计报告自带修复方案
-4. 权层审批 → 石冰:"提案通过"
-5. ⚠️ 断裂 → 可可答说"已通过"但未执行
-6. 权层纠正 → 石冰:"你没修啊"
-7. 能层执行 → P0-002删除·P1修复·护栏沉淀
-8. 护栏沉淀 → TAFA护栏:审批通过=立即执行,不等二次指令
+1. Audit-layer finding → v8.3 audit report: P0-001 (audit chain broken) + P0-002 (duplicate registries)
+2. Route to capability layer → each violation annotated with ⏵ capability layer [x]
+3. Capability-layer proposal → the audit report carries its own fix plan
+4. Authority-layer approval → the owner: "proposal approved"
+5. ⚠️ Break → the agent said "approved" but did not execute
+6. Authority-layer correction → the owner: "you didn't fix it"
+7. Capability-layer execution → P0-002 deleted · P1 fixed · guardrail consolidated
+8. Guardrail consolidation → TAFA guardrail: approval passed = execute immediately, do not wait for a second instruction
 
-## 闭环断裂根因
+## Root cause of the closed-loop break
 
-文本护栏"审批通过后执行"→Agent理解为"已确认"而非"执行"
-固化为: "通过"=动手,不="收到"
+The textual guardrail "execute after approval passes" → the agent understood it as "confirmed" rather than "execute"
+Consolidated as: "approved" = act; it is not "received"
 
-## 修正后闭环
+## Corrected closed loop
 
-权层定规则 → 能层执行 → 审层发现违规 → ⏵路由能层 → ①能层提案 → 权层审批(Human in the Loop) → ①能层修复 → ②能层护栏(归因·定位·固化·验证) → ③审层下次验证
+Authority layer sets rules → capability layer executes → audit layer finds violations → ⏵ route to capability layer → ① capability-layer proposal → authority-layer approval (Human in the Loop) → ① capability-layer fix → ② capability-layer guardrail (attribution · localization · consolidation · verification) → ③ next audit-layer verification

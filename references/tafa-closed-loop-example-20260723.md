@@ -1,48 +1,48 @@
-# TAFA闭环实战案例 — 2026-07-23
+# TAFA Closed-Loop Field Case — 2026-07-23
 
-## 案例：AI医疗cron路径幻觉
+## Case: AI medical cron path hallucination
 
-### 1. 审层发现
-审计cron v7.0 在22:48发现：
+### 1. Audit-layer finding
+The audit cron v7.0 found at 22:48:
 
 ```
-🚨 能层[AI医疗cron] → 违反 → 权层⑦诚实为根
-  证据：Agent声称 upload_to_kb.cjs 不存在（实际文件在根目录）
-  等级：🔴
+🚨 Capability layer [AI medical cron] → violated → Authority layer ⑦ honesty as the root
+  Evidence: the agent claimed upload_to_kb.cjs does not exist (the file is actually in the root directory)
+  Level: 🔴
 
-🚨 能层[AI医疗cron] → 违反 → 权层②溯源+⑦诚实
-  证据：声明"上传成功"但未验证（对比医院cron有验证步骤）
-  等级：🔴
+🚨 Capability layer [AI medical cron] → violated → Authority layer ② traceability + ⑦ honesty
+  Evidence: declared "upload succeeded" without verification (whereas the hospital cron has a verification step)
+  Level: 🔴
 ```
 
-### 2. 路由至能层
-⏵ 路由至：能层[AI医疗cron, 医院cron, AI热点cron]（三个使用IMA上传的cron）
-⏵ 建议修复：上传前ls验证→使用Windows绝对路径→验证上传输出→失败报真实原因
+### 2. Routing to the capability layer
+⏵ Routed to: capability layer [AI medical cron, hospital cron, AI trending-topic cron] (the three crons that use IMA upload)
+⏵ Suggested fix: ls verification before upload → use Windows absolute paths → verify the upload output → report the real cause on failure
 
-### 3. 能层提案
-能层分析根因：MSYS/Windows路径转换不一致，导致Agent找不到文件后编造原因。
-修复方案：
-1. 上传前强制 ls 验证文件存在
-2. 使用 Windows 绝对路径 C:/Users/...
-3. 验证上传输出含 success/ok/media_id
-4. 失败时报告真实错误·不编造
+### 3. Capability-layer proposal
+The capability layer analyzed the root cause: inconsistent MSYS/Windows path conversion meant the agent could not find the file and then fabricated a reason.
+Fix plan:
+1. Force an ls verification that the file exists before upload
+2. Use Windows absolute paths `<drive>:/\1`
+3. Verify that the upload output contains success/ok/media_id
+4. On failure report the real error; do not fabricate
 
-### 4. 权层审批
-石冰："要" → ✅通过
+### 4. Authority-layer approval
+The owner: "do it" → ✅ approved
 
-### 5. 能层执行
-三个cron payload已更新（db78dd7184f7, 0aa8af3edf0c, 9cfa7657bab3）
+### 5. Capability-layer execution
+Three cron payloads updated (<cron-id-1>, <cron-id-2>, <cron-id-3>)
 
-### 6. 护栏式沉淀
-- 归因：路径幻觉——跨平台路径转换问题
-- 定位：所有IMA上传cron的payload上传步骤
-- 固化：
-  - cron payload: 上传前 ls + 绝对路径 + 验证输出
-  - solo-audit SKILL.md: Agent 4 输出前自检强制要求
-  - AGENTS.md: "直接执行比先验证再跑更可靠"
+### 6. Guardrail-style consolidation
+- Attribution: path hallucination — a cross-platform path conversion problem
+- Localization: the upload step in the payload of every IMA-upload cron
+- Consolidation:
+  - cron payload: ls before upload + absolute paths + verify output
+  - solo-audit SKILL.md: mandatory self-check before Agent 4 outputs
+  - AGENTS.md: "executing directly is more reliable than verifying before running"
 
-## 模式识别
+## Pattern recognition
 
-此类问题特征：Agent对失败原因进行推测而非诚实报告
-护栏模式：任何外部操作执行前必须验证前置条件，失败必须报告真实错误
-适用场景：所有cron的IMA上传步骤、网络请求、文件操作
+Characteristics of this class of problem: the agent speculates about the cause of a failure instead of reporting it honestly
+Guardrail pattern: any external operation must verify its preconditions before execution, and a failure must be reported as the real error
+Applicable scope: the IMA upload step of every cron, network requests, file operations
