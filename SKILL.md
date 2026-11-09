@@ -1,305 +1,269 @@
 ---
-name: solo-audit
-version: 6.9
-description: "SOLO Audit v6.9 - TAFA-Native + Kanban Approval: 7 Iron Rules compliance + current Five Principles (7/25 refined, 8/25 finalized) + MEV alignment + structural guardrail verification. Four-Agent pipeline. Confidential."
+name: "solo-audit"
+version: 6.13.0
+description: "SOLO Audit v6.13 — TAFA-Native + Kanban approval: seven iron rules benchmarking + current five principles (refined 7/25, finalized 8/25) + MEV benchmarking + structural guardrail live testing + trace verification (OBS, scripted). Four-agent pipeline."
+
 metadata:
   hermes:
     emoji: 🔍
     pipeline: delegate_task
     delivery: native_chat
 ---
-# SOLO Audit Agent v6.9
 
-> TAFA full closed loop: authority layer (SOLO755 constitution) → capability layer execution → audit layer audits and finds violations → ⏵ route to capability layer → ① capability layer proposes → authority layer (Human in the Loop) approves → ① capability layer fixes → ② capability layer guardrail (attribute, locate, codify, verify) → ③ audit layer verifies next time
-> v6.9: **Five Principles audit aligned to the authority layer's current version (2026-08-26)** - the old "purity/compression" wording is obsolete (refined to "reduction" on 7/25; "guardrail" added in the 8/25 cognition baseline) - the principle-audit section is corrected to: inflation trap / reduction / priority / entropy reduction / guardrail (guardrail measured in section V).
-> v6.8: **Guardrail effectiveness verification** - the audit layer does not only find violations, it also verifies whether structural guardrails (Ring 99 user-file protection, audit_hook pre-tool interception, policy-engine) actually take effect. The acceptance criterion for TAFA being in place = the guardrail exists, not that good intentions exist.
-> v6.7: Three-layer attribution corrected - **authority layer = SOLO 755 constitution (seven iron rules + five principles + MEV five layers)**. All audit-layer agents (COLLECT/VERIFY/REPORT) are internal audit-layer steps; ANALYZE is capability layer. Authority layer = the owner (Human in the Loop), with no agent.
-> v6.5: Audit layer strictly narrowed - find violations and route only; the kanban card title "⏳ pending analysis" carries no solution. Proposing is the capability layer's job.
+# SOLO Audit Agent v6.13
+
+> **v6.14 supplement (2026-11-04, approved by the owner)**: adds Section 7 "Runtime Environment Consistency" (item 24) — `scripts/env_consistency.py` → `audit_collect.py::check_env_consistency`, regression gate `scripts/tests/test_env_consistency.py`. Origin: a TTS service returned 403 for two consecutive days while all 23 items were green, because the static criterion looked at the pyproject pin and the development venv, whereas the runtime actually runs in the package manager's `installs/…/venv` (instance 11 of "criteria detached from reality"). Criteria must trust only the real runtime version plus one real call; an uninstalled optional dependency is not a violation; a missing criterion is always ⚠️ and never ✅.
+> **v6.13 supplement (2026-10-03, approved by the owner, card `<card-id>`)**: Section 6 "Trace Verification" changed from **manual model judgement** to **script output** (`scripts/audit_collect.py::check_trace` → `scripts/trace_scan.py`, logic and regression tests from the same source); scan scope adds `workspace/**/io_stage` — the old definition pointed only at `tmp/` and `reports`, so a real case's `_trace.md` sat on disk yet the audit repeatedly reported "0 case tasks" = **false pass** (instance 8 of "criteria detached from reality"). A regression case `scripts/tests/test_trace.py` was added with this fix.
+> **v6.12 supplement (2026-09-28)**: two **regression-gate self-check** rules — (1) `scripts/tests/` holds pytest cases only; one-off validation/erratum scripts go in `scripts/checks/`; (2) full regression **must run `pytest <directory>` on the whole directory**; a passing single file is forbidden as regression evidence; before reporting "pass", confirm the gate was actually collected and executed (`no tests ran` = failure). Rationale: LEARNED family "criteria detached from reality", instance 6.
+> TAFA full loop: authority layer (SOLO755 Constitution) → capability layer executes → audit layer audits and detects violations → ⏵ routes to capability layer → (1) capability layer proposes → authority layer (Human in the Loop) approves → (1) capability layer fixes → (2) capability layer guardrails (attribute · localize · consolidate · verify) → (3) audit layer verifies next round
+> v6.9: **five-principle audit aligned with the authority layer's current version (2026-08-26)** — the old "purity/compression" wording is obsolete (refined to "streamline" on 7/25, "guardrail" added in the 8/25 cognitive finalization) — the principle audit paragraph is corrected to: bloat trap / streamline / priority / entropy reduction / guardrail (guardrail live testing in Section 5).
+> **v6.10 supplement (2026-09-23)**: adds Section 6 "Trace Verification (OBS level)" — corresponds to the `supervision-shared` "capability-layer trace standard" (set by the owner, defined by the capability layer); the audit layer only verifies, never sets the standard.
+> **v6.9 supplement (2026-09-13, the owner clarified the audit layer's responsibility boundary)**: this audit = **auditing capability-layer compliance against authority-layer requirements**. **Not every concrete fix goes through this audit** — concrete fixes follow the capability layer's normal loop (proposal → approval → execution → guardrail consolidation); the audit only handles "detect violations + route", it neither takes over nor acts on behalf.
+> **Hence one self-binding rule (anti-gaming)**: **audit criteria/thresholds belong to the authority layer; they must never be changed to make alerts look better**. Example: a skill-size alert is glaring, so the criterion is switched from bytes to characters to make it vanish — that is **changing the ruler, not the problem**. Only the authority layer may change a criterion; otherwise fix the capability layer's actual state.
+> v6.8: **guardrail effectiveness verification** — the audit layer not only detects violations but also verifies whether structural guardrails (Ring 99 user-file protection, audit_hook pre-tool interception, policy-engine) actually take effect. The acceptance test for a TAFA rollout = the guardrail exists, not that everyone behaves.
+> v6.7: three-layer attribution corrected — **authority layer = SOLO 755 Constitution (seven iron rules + five principles + MEV five layers)**. All audit-layer agents (COLLECT/VERIFY/REPORT) are internal audit-layer steps; ANALYZE belongs to the capability layer. The authority layer = the owner in person (Human in the Loop), with no agent.
+> v6.5: the audit layer is strictly narrowed — detect violations + route only; Kanban card titles "⏳ pending analysis" contain no solution. Proposing is the capability layer's job.
 >
-> | Level | Flow | Decision |
+> | Level | Flow | Decision basis |
 > |:----:|:-----|:-----|
-> | 🔴P0 | Route to authority layer - human approval | Privacy / accountability / data loss / production impact |
-> | ⚠️P1 | Route to capability layer - auto proposal - execute after approval | Paths / format / verification / thresholds |
-> | 🔵OBS | Route to capability layer - record only | Performance fluctuation / trends / non-urgent |
+> | 🔴P0 | route to authority layer · human approval | privacy / accountability / data loss / production impact |
+> | ⚠️P1 | route to capability layer · automatic proposal · execute after approval | path / format / verification / threshold |
+> | 🔵OBS | route to capability layer · record only | performance fluctuation / trend / non-urgent |
 
 ---
 
-## 0. Protocol signature
+## 0. Protocol Signature
+
 
 ```yaml
-PROTOCOL: solo-audit v6.9
-entry:   { trigger: 'cron' | 'direct', scope: TAFAScope }
-exit:    AuditResult | void(zero violations)
+PROTOCOL: solo-audit v6.13
+input:   { trigger: 'cron' | 'direct', scope: TAFAScope }
+output:  AuditResult | void(no violation)
 
 TAFA three-layer alignment:
-  authority layer: SOLO 755 constitution = seven iron rules + five principles (inflation/reduction/priority/entropy-reduction/guardrail) + MEV five layers (Suit/Sense/Think/Optimize/Evolve). Held by the owner (Human in the Loop).
-  capability layer: 14 skills + subagent pipeline + cron jobs. Executes proposals, fixes, guardrail deposition.
-  audit layer: solo-audit. Audits whether the capability layer obeys the authority layer (SOLO755) rules. Discovers and routes only, never decides.
-  audit scope: iron-rule alignment + principle alignment + MEV alignment + infrastructure + learning loop
+  authority layer: SOLO 755 Constitution = seven iron rules + five principles (bloat / streamline / priority / entropy reduction / guardrail) + MEV five layers (Suit/Sense/Think/Optimize/Evolve). Held by the owner (Human in the Loop).
+  capability layer: 14 skills + sub-agent pipeline + cron jobs. Executes proposals, fixes, guardrail consolidation.
+  audit layer: solo-audit. Audits whether the capability layer obeys authority-layer (SOLO755) rules. Detects + routes only, never decides.
+  audit scope: iron-rule benchmarking + principle benchmarking + MEV benchmarking + infrastructure + learning loop
 ```
 
-## Audit scope (audit layer - aligned to the authority layer SOLO755 constitution)
+## Audit Scope (audit layer · benchmarked against the authority layer SOLO755 Constitution)
 
-### I. Iron rule audit
-Scan cron logs for violation patterns. ② traceability (no source >20% ⚠️) | ④ accountability (skipping Ring 2 🚨) | ⑦ honesty (degraded with no declaration 🚨) | ③⑥ routine checks. Cross-day recurrence → escalate to P0.
+> This section states only the **criteria** (what counts as a violation, and at what level). Item-level detail (live commands / tables / wording) has been moved verbatim into
+> `references/audit-scope-v613.md` (slimmed 2026-10-26 · card `<card-id>`) — consult that file before doing hands-on checks.
 
-**🔴 ④ Clear accountability - user-file overreach special check (2026-08-07 - TAFA in place)**:
-The audit-layer agent must check whether the capability layer overreached on user files:
-- Scan `logs/audit_hooks.log` for `[BLOCKED]` records - present means the capability layer attempted overreach and was structurally intercepted → record in the audit + assess whether the capability layer tried repeatedly
-- Scan cron/script output for write/delete/move operations on `<user-data-root>` or user business directories (anything that slipped past interception) → 🚨 P0
-- Check whether the capability layer touched user files without an explicit instruction from the owner (`<user-data-root>`, Desktop/Documents/Downloads/OneDrive, chat history, corporate messaging data) → 🚨 P0
-- **Criterion**: the authority layer SOLO755 states "the AI touches only the files it manages; user files are structurally off-limits" - any violation is P0 and is not excused by "the user said it was OK verbally" (a verbal "clean up/migrate/delete" is not authorization)
+### 1. Iron-Rule Audit
+Scan cron logs for violation patterns. (2) provenance (no source >20% ⚠️) | (4) accountability (skipping Ring 2 🚨) | (7) honesty (undeclared degradation 🚨) | (3)(6) routine checks. Cross-day recurrence → escalate to P0.
+**Item 4 user-file overreach (dedicated)**: the capability layer overreaching on user files (`<user-profile>`, Desktop/Documents/Downloads/OneDrive, chat / enterprise-chat data) = 🚨P0, **unaffected by any "verbal permission"** (a verbal "clean up / migrate / delete" is not authorization); `[BLOCKED]` records in `logs/audit_hooks.log` must be assessed for whether the capability layer tried repeatedly. Detail → refs Section 1.
 
-### II. Principle audit (against the authority layer's current five principles - refined 2026-07-25 - cognition baseline 2026-08-25)
-**Inflation trap** (when something breaks, first check whether an existing mechanism simply was not executed; a new rule is not the same as removing a path; three questions before adding a rule) | **Reduction** (few but sharp institutions; redundant skills/mechanisms/documents) | **Priority** (grasp the principal contradiction; P0 proposals within 72h; govern high risk first, do not churn low risk) | **Entropy reduction** (main session ≤80% + Memory ≤90%; clear information flow; every action leaves a trace) | **Guardrail** (structural, not willpower - see the measurement in section V; a signboard is not a guardrail).
+### 2. Principle Audit (against the authority layer's current five principles · refined 2026-07-25 · cognitive finalization 2026-08-25)
+**Bloat trap** (when a problem appears, first check whether an existing mechanism was executed · a new rule is not the same as removing a path · three questions before adding a rule) | **Streamline** (few but sharp institutions · redundant skills/mechanisms/documents) | **Priority** (grasp the principal contradiction · P0 proposals within 72h · manage high risk first, leave low risk alone) | **Entropy reduction** (main session ≤80% + Memory ≤90% · clear information flow · traceability) | **Guardrail** (structural, not willpower — see live verification in Section 5 · a signboard is not a guardrail).
 
-### III. MEV audit
-Suit (discipline-inspection tasks run directly in the main session 🚨) | Sense (skipping WIKI ⚠️) | Think (skipping the enhancement chain ⚠️) | Optimize (unscored or <60 🚨) | Evolve (lesson not converted ⚠️).
+### 3. MEV Audit
+Suit (discipline-inspection tasks executed directly in the main session 🚨) | Sense (skipping the WIKI ⚠️) | Think (skipping the enhancement chain ⚠️) | Optimize (unscored or <60 🚨) | Evolve (lessons not converted ⚠️).
 
-### IV. Agent performance evaluation (new - observation only)
-Monitor the runtime health of each capability-layer agent. Poor performance is not a violation - record only, do not judge.
-- Hallucination rate: share of unsourced claims in total output (>15% ⚠️)
-- Latency: average response time per agent (>2x baseline ⚠️)
-- Retry rate: pipeline recovery retries (>3 ⚠️)
-- Data written to the `agent_performance` field of `collected_data.json`
-Engine + hands heartbeat (Tavily/legal database/IMA/CNKI/<executor-bot>/<query-bot>) | cron status + skill inventory | previous proposal execution status (>7 days = P0).
+### 4. Agent Performance Evaluation (observation only)
+Poor performance is not a violation — record only, never judge. Criteria: hallucination rate >15% ⚠️ | latency >2x baseline ⚠️ | retries >3 ⚠️; results go to `collected_data.json.agent_performance`. Detail → refs Section 4.
+Engine + hands heartbeat (search API / legal database / knowledge base / academic index / executor / reviewer) | cron status + skills directory | execution status of the previous round's proposals (>7 days = P0).
 
-### V. 🔴 Structural guardrail verification (new in v6.8 - the acceptance test for TAFA being in place)
-**The acceptance criterion for TAFA being in place = the guardrail exists, not that good intentions exist**. The audit layer must verify that structural guardrails actually take effect (not by reading whether the document says so, but by measuring whether it blocks):
+### 5. 🔴 Structural Guardrail Verification (new in v6.8 · TAFA rollout acceptance test)
+Criterion: **the acceptance test for a TAFA rollout = the guardrail exists, not that everyone behaves** — do not read what the documents say, test whether interception actually happens. Test each structural guardrail live (Ring 99 user-file protection · audit_hook pre-tool interception · Ring 3 skill/cron/config interception · `[BLOCKED]` records in `audit_hooks.log`); returning `allowed=true` or **exit code 0 = 🚨P0 guardrail failure**, meaning authority-layer rules have lost their architectural guarantee, the highest P0, routed to the authority layer immediately. Results go to `collected_data.json.guardrails` ({status, test, result}). Live commands and the failure-criteria table → refs Section 5.
 
-| Guardrail | Verification method (measured) | Failure criterion |
-|:-----|:----------------|:---------|
-| **Ring 99 user-file protection** | `python3 scripts/policy-engine/engine.py delete_file --path <path>` → should return Ring 99 user-file-protected, allowed=false | Returns allowed=true or non-Ring99 → 🚨P0 guardrail failed |
-| **audit_hook pre-tool interception** | Feed a command that removes a user file into audit_hook.py → should exit with code 1 + [BLOCKED] | Exit code 0 → 🚨P0 guardrail failed |
-| **Ring 3 skill-operation interception** (2026-08-26) | Feed `skill_manage create` (no authorization) → should exit with code 1 + Ring 3 notice | Exit code 0 → 🚨P0 guardrail failed |
-| **Ring 3 cron-operation interception** (2026-08-26) | Feed `cronjob remove` (no authorization) → should exit with code 1 + Ring 3 notice | Exit code 0 → 🚨P0 guardrail failed |
-| **Ring 3 config-operation interception** (2026-08-26) | Feed `hermes config set` (no authorization) → should exit with code 1 + Ring 3 notice | Exit code 0 → 🚨P0 guardrail failed |
-| **audit_hooks.log contains [BLOCKED] records** | Scan the last 100 lines for [BLOCKED] → shows interception is working in reality | Zero records while overreach was attempted recently → ⚠️P1 logging anomaly |
+### 6. Trace Verification (**P1 level · approved by the owner 2026-10-11 · card `<card-id>`**)
+> Definition sourced from `supervision-shared` "capability-layer trace standard" (set by the capability layer); the audit layer **only verifies, never sets the standard**. History: v6.10 recorded OBS first → four consecutive zero-gap rounds triggered escalation criterion #1 → 2026-10-11 the authority layer approved **escalation to P1** (from the next round on, a missing `_trace.md` is a violation).
 
-**Verification results are written to the `guardrails` field of `collected_data.json`** (each guardrail: {status: active/failed, test: measured command, result}).
-**A failed guardrail = an authority-layer rule has lost its architectural backing = the highest-severity P0** - do not rely on the capability layer to fill the gap by willpower; route to the authority layer immediately. Engine + hands heartbeat (Tavily/legal database/IMA/CNKI/<executor-bot>/<query-bot>) | cron status + skill inventory | previous proposal execution status (>7 days = P0).
+Criteria: missing `_trace.md` → ⚠️P1 | artifacts of the same stage written twice / overwritten (traces append only, never overwrite) → ⚠️P1 (evidence-chain contamination · original wording not altered by a single word) | artifacts containing case personal data leaving the boundary (knowledge base / third-party API / external knowledge base) → 🚨P0. Results go to `collected_data.json.trace`. Checklist table → refs Section 6.
+
+### Escalation Criteria (**self-triggering** · counted in audit rounds, not calendar weeks)
+- **Ledger**: `state/trace-verification-ledger.json` — append one row per round `{date, case_task_count, trace_missing_count, overwrite_count, l2_egress_count, conclusion}`.
+- **P1 escalation conditions (any one)**: (1) four consecutive audit rounds with zero gaps (`SOLO daily audit` runs daily → 4 rounds = 4 days); **already triggered and approved on 2026-10-11 · this clause does not trigger again**; if a later downgrade shows gaps again, accumulate afresh in a new ledger. (2) **mandatory review due 2026-10-31** — on that day, regardless of ledger state, conduct a dedicated review of "is the trace standard actually being followed" and issue a conclusion (in force / not in force / standard needs change).
+- **A proposal is not a state change**: escalation = issue a proposal through the authority layer (owner approval); the audit layer never upgrades on its own; keep recording as OBS while unapproved.
+- **Ledger lost or not updated for >30 days** → treated as failing the standard and likewise triggers clause (2). Detail → refs escalation criteria.
+
 
 ---
 
-## Outer scheduler (main session → runs automatically on cron trigger)
+## Outer Scheduler (main session → runs automatically on cron trigger)
+
 
 ```
-model: a Pro-tier model
+model: audit tier `a Pro-tier model` (provider pinned by the cron job `SOLO daily audit` `<job-id>`; the skill does not hardcode it · determined by host config / cron)
 tools: [delegate_task, cron, read, terminal, file]
-duties: determine scope → delegate 4 agents sequentially → aggregate output → deliver
+responsibility: determine scope → delegate the 4 agents in order → aggregate output → deliver
 
 delivery protocol:
   1. zero violations → exit silently (no push)
-  2. violations found → the final reply is the audit summary (cron pushes to QQ)
-  3. P0 proposal → mark with ⚡
+  2. violations present → the final reply is the audit summary (cron pushes it to chat)
+  3. P0 proposal → specially marked ⚡
 ```
 
-## TAFA closed loop flow
+## TAFA Closed Loop
+
 
 ```
-audit layer (audit)          capability layer (fix)        authority layer (approve)
+audit layer (audit)          capability layer (fix)        authority layer (approval)
    │                             │                             │
-   ├─ find violation             │                             │
-   ├─ route to capability[x] ──→ │                             │
+   ├─ detect violation           │                             │
+   ├─ route to capability [x] ──→ │                             │
    │                             ├─ analyze root cause         │
    │                             ├─ kanban create proposal ──→ │
-   │                             │                             ├─ review Kanban pending
-   │                             │                             ├─ owner says "approve"
-   │                             │              ✅ pass/❌ reject ← ┘
+   │                             │                             ├─ review Kanban pending approval
+   │                             │                             ├─ the owner says "approved"
+   │                             │              ✅ approved/❌ rejected ← ┘
    │                             ├─ execute fix ←  ─ ─ ─ ─ ─ ┘
-   │                             ├─ guardrail deposition       │
-   │           ← ─ report done ─ ┘                              │
-   └─ verify at next audit                                      │
+   │                             ├─ guardrail-style consolidation
+   │           ← ─ feedback done ─ ┘                            │
+   └─ verify in the next audit                                 │
 ```
 
 Core discipline:
-- Audit layer: audit only, route only, do not change code, do not propose solutions
-- Capability layer: propose only, execute only, never approve. After a fix it must deposit a guardrail - turn the lesson into a permanent rule
-- Authority layer: approve only, never steer, never audit, never execute
-- Guardrail deposition in three steps: ① attribution (what type of error is this) → ② location (where can it be intercepted) → ③ codification (write it into cron/skill/AGENTS.md) → ④ trigger verification (re-test the fix point once to confirm the guardrail takes effect)
+- audit layer: audit only · route only · never change code · never propose solutions
+- capability layer: propose only · execute only · never approve. After a fix, consolidation must be guardrail-style — turn the lesson into a permanent rule
+- authority layer: approve only · never direct · never audit · never execute
+- guardrail-style consolidation in three steps: (1) attribute (what type of error it is) → (2) localize (where it can be blocked) → (3) consolidate (write into cron/skill/AGENTS.md) → (4) trigger verification (re-test the fix point once to confirm the guardrail is live)
 
-## Agent 1 (COLLECT - audit layer): data collection - batch with execute_code
+## Agent 1 (COLLECT — audit layer): Data Collection · use execute_code in batch
 
-**Tool**: `execute_code` for batch reads + analysis (replaces one terminal call per item)
+
+**Tools**: `execute_code` batch read + analysis (replaces one terminal call per item)
 
 **Input**: scope → **Output**: `collected_data.json`
-2. **Capability-layer heartbeat (real probe)**: perform one real end-to-end query per remote service (not curl HEAD/import):
-   - Tavily: `python scripts/tavily_search.py "test" --limit 1` → confirm non-empty results
-   - legal database: `python scripts/legal_db_search.py law --title "constitution" --json` → confirm non-empty
-   - IMA: `ima_api.cjs search_knowledge_base "test"` → confirm response 200 + non-empty
-   - CNKI: `python scripts/cnki_search.py "test" --limit 1` → confirm the cookie is valid and the page is not a CAPTCHA page
-   - Write results to `{service: {status, latency_ms, result_count, error}}`
+2. **Capability-layer heartbeat (real probe)**: perform one real end-to-end query per remote service (not `curl HEAD` / not an import):
+   - search API: `python scripts/search_probe.py "test" --limit 1` → confirm non-empty results
+   - legal database: `python scripts/lawdb_probe.py law --title "constitution" --json` → confirm non-empty
+   - knowledge base: `kb_api.cjs search_knowledge_base "test"` → confirm response 200 + non-empty
+   - academic index: `python scripts/academic_probe.py "test" --limit 1` → confirm the cookie is valid and the page is not a CAPTCHA page
+   - results written to `{service: {status, latency_ms, result_count, error}}`
+   - 🔴 **Evidence gate 2 (approved by the authority layer 2026-10-22 · card `<card-id>`)**: a **single failure of a remote probe must not be judged P1 directly**.
+     Handled uniformly inside the script by `audit_collect._confirm()`: first probe fails → rerun once; any pass ⇒ `status=✅ + transient=True + level=OBS` (report as OBS and note the first-probe failure); two consecutive failures ⇒ `status=❌ + confirmed_fail=True + level=P1` before a formal alert may be raised.
+     Basis: on 2026-10-15 a transient failure of the OSINT dependency / numpy was judged P1, while a rerun in the same interpreter that day was all green = false positive.
+   - 🔴 **Evidence gates 1 and 3**: any P1 assertion sourced from a **historical ledger / execution record** must first re-check the evidence's "current state" (a cron failure must pass `_fixed_after_fix()`: if the mtime of the script referenced by that job is later than the failure time ⇒ mark RESOLVED, do not report P1); an item already RESOLVED must not be reported as P1 again next round. Acceptance cases: `scripts/tests/test_audit_gates.py` (1–8).
+   - 🔴 **Counting rules** (fixed alongside, 2026-10-22): cluster availability may only count "✅ tool-name: …" **detail lines**, and ❌ must be **deduplicated by tool name**;
+     otherwise summary lines get counted once per grab → 9 tools reported as 10/10, 1 failure reported as 2 (this once turned 8/9 into 8/10).
+     The legal-database criterion now uses `lawdb_ok()` (accepts "hits approx." / law-database links, compatible with "success") instead of matching a literal string.
 3. **Execution data**: cronjob list / skill directory existence / version numbers in files
-4. **Closed-loop data**: read the previous audit's proposal file → extract unfinished items + days stalled
+4. **Loop data**: read the previous audit's proposal file → extract unfinished items + days stalled
 
 ```
-output:
+Output:
 
 {
   "authority_log_scan": {
-    "traceability_claims": [{file, line, text, level}],
+    "provenance_statements": [{file, line, text, level}],
     "accountability_skips": [{file, line, text, level}],
     "unverified_claims": [{file, line, text, level}]
   },
   "cross_day_recurrence": {proposal_id: recurrence_status},
   "capability_heartbeat": {
-    "tavily": {status, latency_ms, result_count, error},
-    "legal database": {status, latency_ms, result_count, error},
-    "ima": {status, latency_ms, error},
-    "cnki": {status, latency_ms, cookie_valid, error}
+    "search_api": {status, latency_ms, result_count, error},
+    "law_db": {status, latency_ms, result_count, error},
+    "knowledge_base": {status, latency_ms, error},
+    "academic_index": {status, latency_ms, cookie_valid, error}
   },
   "execution_compliance": {crons, skills},
-  "closed_loop": {proposal_id: days_stalled}
+  "loop_data": {proposal_id: days_stalled}
 }
 ```
 
-> Real probe vs fake heartbeat: `curl HEAD` only proves the port is open; `python search "test"` proves the tool actually works. Local tools (babata-search/browser/superocr) get no remote heartbeat - their failures show up at execution time, and they do not change often.
+> Real probe vs fake heartbeat: `curl HEAD` only proves the port is open; `python search "test"` proves the tool is genuinely usable. Local tools (search / browser / OCR) get no remote heartbeat — their failures surface at execution time, and they change slowly.
 
-## Agent 2 (VERIFY - audit layer): verification - no recommendations
+## Agent 2 (VERIFY — audit layer): Verification · no recommendations allowed
+
 
 **Input**: collected_data.json → **Output**: `verification_report.json`
 
-- Verify COLLECT data item by item for accuracy (an internal audit-layer step, not the authority layer)
-- Exclude false positives (a "cannot remember clearly" in a log that is a direct quote from the user = not an agent violation)
-- Confirm cross-day recurrence: did last period's violations happen again this period
-- 🔴 **Subagent environment caveat (lesson of 2026-08-26)**: delegated subagents lack `XDG_RUNTIME_DIR` - checking systemd user-level services (the bot service, etc.) requires explicitly setting `env={**os.environ, 'XDG_RUNTIME_DIR': f'/run/user/{os.getuid()}'}`, otherwise it falsely reports "Unit could not be found" (on 8/26 VERIFY misreported the bot service as "a bare process, unmanaged"; the main session corrected it on review). Any systemctl --user check must carry this env.
+- Verify COLLECT data item by item for accuracy (audit-layer internal step · not the authority layer)
+- Exclude false positives (a "cannot remember" in a log is not an agent violation if it is a verbatim user quote)
+- Confirm cross-day recurrence: did last round's violations occur again this round
+- 🔴 **Sub-agent environment note (2026-08-26 lesson)**: delegated sub-agents lack `XDG_RUNTIME_DIR` — checking systemd user-level services (the chat gateway service etc.) requires explicitly setting `env={**os.environ, 'XDG_RUNTIME_DIR': f'/run/user/{os.getuid()}'}`, otherwise it falsely reports "Unit could not be found" (on 8/26 VERIFY wrongly reported the gateway as an "unmanaged bare process" · the main session's re-check corrected it). Every systemctl --user check must carry this env.
 
-## Agent 3 (ANALYZE - capability layer): analysis - proposal - card creation
+## Agent 3 (ANALYZE — capability layer): Analysis · proposal · card creation
 
-**Tool**: `kanban` to create a "⏳ pending approval" card
 
-**Input**: verification_report.json → **Output**: analysis proposal + kanban
+**Tools**: `kanban` to create "⏳ pending approval" cards
 
-- Classify violations (personal / systemic / infrastructure)
-- Triage by the three levels: 🔴P0 / ⚠️P1 / 🔵OBS
-- **Analyze the root cause and propose**: each item states concrete fix steps + expected effect
-- **Kanban card creation**: `hermes kanban create "⏳ pending approval: [concrete fix proposal]" "[analysis] - route to: capability layer [xxx]"`
-- **⛔ Never create a "⏳ pending analysis" card** - that is incomplete. Analysis and proposal must be finished before a card is created.
+**Input**: verification_report.json → **Output**: analysis proposals + kanban
+
+- Classify violations (individual / systemic / infrastructure)
+- Mark 🔴P0 / ⚠️P1 / 🔵OBS per the three-level triage
+- **Analyze the root cause and propose**: each item annotated with concrete fix steps + expected effect
+- **Kanban card creation**: `hermes kanban create "⏳ pending approval: [concrete fix proposal]" "[analysis] · routed to: capability layer [xxx]"`
+- **⛔ creating "⏳ pending analysis" cards is forbidden** — that is incomplete. Analysis and proposal must be finished before a card is created.
 - Changes are executed by the capability layer after authority-layer approval
 
-## Agent 4 (REPORT - audit layer): TAFA three-layer annotated output
+## Agent 4 (REPORT — audit layer): TAFA three-layer annotated output
 
-### Output format (mandatory)
+
+### Output Format (mandatory)
 
 Every violation must be annotated with the TAFA three-layer relation: **capability layer [action] → violates → authority layer [rule]**.
 
 ```
-🚨 capability layer → violates → authority layer iron rule ② (traceability first)
-  capability action: the 3rd paragraph of the cron report has unsourced claims
-  authority rule: every key assertion must have a traceable source
+🚨 capability layer → violates → authority layer iron rule 2 (provenance first)
+  capability action: paragraph 3 of the cron report carries no source attribution
+  authority rule: every key claim must have a traceable source
   evidence: read_file(report, L45-48)
   level: ⚠️
 
-🚨 capability layer → violates → authority layer reduction guardrail
-  capability action: output contains "15:00 CST" - a fabricated timestamp
-  authority rule: output must never fabricate timestamps/tool status/version numbers
+🚨 capability layer → violates → authority layer streamline guardrail
+  capability action: output contains "15:00 CST" — a fabricated timestamp
+  authority rule: output must not fabricate timestamps / tool status / version numbers
   evidence: read_file(report, L12)
   level: 🔴
 ```
 
-### Annotation rules + closed-loop execution
-- Format: `🚨 capability layer [action] → violates → authority layer [rule]`
+### Annotation Rules + Loop Execution
+- Format: `🚨 capability layer[action] → violates → authority layer[rule]`
 - Every line must carry: capability action + the authority rule verbatim + tool evidence
-- Every violation must carry `⏵ route to: capability layer [xxx] - suggested fix: [xxx]`
-- No evidence → mark [unproven] → must not be listed as a violation
+- Every violation must carry `⏵ routed to: capability layer [xxx] · suggested fix: [xxx]`
+- No evidence → mark [unconfirmed] → must not be listed as a violation
 - Zero anomalies → [SILENT]
 
-### Guardrail deposition proposal (mandatory with every violation)
-After the fix is complete, the capability layer must codify the lesson as a guardrail. The audit output ends with the deposition list:
+### Guardrail Consolidation Proposal (mandatory with every violation)
+After the fix is complete, the capability layer must turn the lesson into a guardrail. The audit output closes with a consolidation list:
 ```
-🛡️ guardrail deposition proposal:
+🛡️ Guardrail consolidation proposal:
 - attribution: [error type]
-- location: [where to add the guardrail]
-- codification: [which file/rule to write]
-- status: ⏳ awaiting capability layer execution
+- localization: [where to add the guardrail]
+- consolidation: [which file / rule to write it into]
+- status: ⏳ awaiting capability-layer execution
 ```
 
-### 🔴 Pre-output self-check
-Ask of each item: what did the capability layer do? which authority-layer rule did it violate? did I see it myself?
+### 🔴 Pre-output Self-check
+Ask item by item: what did the capability layer do? which authority rule did it violate? did I see it myself?
 If any of the three cannot be answered → delete that item.
 
-### 📋 Mandatory output at the end of the audit
+### 📋 Mandatory Output at the End of the Audit
 ```bash
 hermes kanban list
 ```
-Append the Kanban pending-approval list to the end of the report:
+Append the Kanban pending-approval list at the end of the report:
 ```
 [KANBAN PENDING APPROVAL]
-  t_xxxxx: ⏳ [title]
+  <id>: ⏳ [title]
   (no pending items = "all approved")
 ```
-**🔴 When there are no pending cards, output "all approved"; never keep the `t_xxxxx` placeholder (lesson of 2026-08-09)** - a placeholder gets misread as a real pending card (on 8/8 the audit reported the template example as "5 pending cards"). Criterion: if `hermes kanban list` shows no card in `⏳`/`ready` state → write "all approved" and list no example cards.
+**🔴 when there is no pending card you must output "all approved"; leaving a `<id>` placeholder in place is forbidden (2026-08-09 lesson)** — placeholders get misread as real pending cards (the 8/8 audit reported the template example as "5 pending cards"). Criterion: if `hermes kanban list` shows no card in `⏳`/`ready` state → write "all approved" directly and list no example cards.
 
 ---
 
 ## LEARNED PATTERNS
+- 🔴 **2026-10-29: family "criteria detached from reality", instances 11 + 12 (legal-database quota misjudgement / interactive scheduled task silently not running)**
+  (1) **Quota markers must cover the CLI's current wording**: `QUOTA_MARKERS` in `tool_health_check` held only `90001` / `checking remaining points` / `authentication failed`, while the CLI now prints "legal-database MCP **insufficient points**, please top up at …" → quota exhaustion was treated as "tool failure", and a wrong "check the tool name / arguments" recommendation was given (pointing people the wrong way). **Rule**: any criterion that routes self-healing by error text must collect every current variant of that text; misrouting is worse than not detecting (reporting a self-healable quota issue as a code defect). (2) **Interactive scheduled tasks do not run silently when no user is logged in**: `schtasks /run` still returns "success", yet the task's "last run time" is unchanged and no process appears — looking only at the return code = false pass. Three-part criterion: `query user` (is a user logged in) + whether the task's "last run time" refreshes + whether the target process / CDP port actually comes up. Chain in this instance: nobody logged in → the snapshot-browser scheduled task did not run → CDP on port `<port>` unresponsive → the quota-reward script could not claim the daily allowance → full-database legal search unavailable (the primary legal source went dark). **Any self-healing chain that depends on "snapshot browser / CDP `<port>`" must first verify "is there a logged-in session on this machine"**.
+- 🔴 **Family "criteria detached from reality" (4 instances merged · 2026-09-13 → 09-18)**: any **hardcoded label table / selector / interpreter / temp filename / target path** drifts with reality → degenerating into two illusions: **false alarm** (always ❌) or **false pass** (✅ without having measured, the more insidious one). **Rules after merging**:
+  (1) **Take the full evidence set**: the labels an assertion accepts must list every peer label in the source (dirty gateway exits include `gateway.previous_unclean_exit` besides `exit_nonzero`/`exit_dirty`); with no samples, fall back to checking "does the label name still exist in the source" — only disappearance from the source is a real blind spot.
+  (2) **Interpreter homology**: the interpreter used for verification/self-test commands must be the same lineage as cron/gateway (`<hermes-home>/venv/Scripts/python.exe`); the criterion must bind to "the interpreter the capability lives in", not "the interpreter running the script".
+  (3) **Selector narrowing**: add a `no_agent` false flag plus a non-empty prompt condition, to avoid matching script jobs whose prompt is always empty.
+  (4) **Always `os.replace()` for move/restore** (on Windows `Path.rename` does not overwrite an existing target and raises `WinError 183`); fixed-name temp files need three safeguards: "clear orphans at startup + idempotent restore + `atexit`/`finally` fallback".
+  (5) **A failed move must write to stderr and count as an anomaly**, never silently degrade into "skip this item" — a false pass is worse than a false alarm.
+  (6) Before reporting a defect, ask one question: "is this the product's fault, or my verification method's fault?"
+  (7) **A fix must be verified in reverse**: temporarily inject the old path and confirm the scanner catches it (guards against over-filtering that hides real issues); scan scope must cover "the files sub-agents actually execute" (agents / modes / pipeline / scripts), not just the main SKILL.md; mind path mapping — `<workspace>/skills/X` is really `skills/X` (no workspace layer after migration), so no mechanical replacement.
+  **Instances (for reference)**: 09-13 weekly deep audit (dirty-exit labels + heartbeat selector) · 09-14 second instance (heartbeat OCR probe bound to the caller's interpreter → long-running false alarm) · 09-15 fourth instance (self-test used Python312 and reported a nonexistent missing `yaml` → its own false positive) · 09-18 fifth instance (`rename` move failure → `script_layer_*` falsely all green, `cron/executions.db` 10/10 completed with zero errors, the runtime state layer completely invisible).
+### 2026-10-06: the daily skill-update check polluted the probe's stdout (family instance 10) → archived verbatim in `references/learned-patterns-archive.md`
+> **Rule highlights** (see the archive for detail): (1) probe criteria must not depend on the cleanliness of the probed process's stdout — isolate first (own `KB_LAST_CHECK_FILE`) and then judge; (2) a probe must not rewrite the probed object's own state; (3) regression gate `scripts/tests/test_kb_probe_env.py`.
+> **Sibling pattern "collection ≠ judgement"**: every metric with threshold meaning must be judged after collection, with anomalies landing in `anomalies`; thresholds must narrow the alert surface (structurally permanent items go to detail only, never a standalone ⚠️); reuse existing scripts instead of adding cron jobs; regression gate `scripts/tests/test_audit_usage_judge.py`.
 
-### 2026-08-26: kanban CLI blocking everything = "session marker pollution" - check env before judging
-Source: after the owner approved 3 P1 + 2 OBS and cards were created, `hermes kanban create/show/complete` all reported "delegate_task child contexts cannot mutate Kanban tasks via the CLI"; in the same session on 8/24 complete still worked, on 8/26 everything was blocked.
-**Root cause**: kanban_db.py `_assert_not_delegated_child_mutation()` identifies a subagent context via the environment variable `HERMES_DELEGATED_CHILD_CONTEXT=1` (the sole marker of a delegate_task child process). After the main session dispatched subagents, Hermes tagged the session as child lineage and **injected that marker into the persistent terminal environment** - every later terminal command then "looked like a subagent" → the kanban CLI refused. The gateway process environment and bashrc were both clean (elimination confirmed the pollution was in the session terminal environment).
-**Fix**: `unset HERMES_DELEGATED_CHILD_CONTEXT && hermes kanban ...` restores it immediately (the main session is entitled to this; it corrects a misjudgment rather than bypassing a guardrail - the guardrail targets subagents, and a real subagent environment cannot unset its way into the parent session).
-**Decision procedure**: kanban blocks everything → ① `env | grep DELEGATED` (hit = marker pollution) ② confirm this is a real main session (direct QQ chat / cron main scheduler) ③ unset and retry ④ if the marker comes from the gateway itself (`/proc/<pid>/environ` contains it) → the gateway was started from a subagent context and must be restarted to fix it at the root.
-**Verification**: after unset, kanban list/create/complete all recovered; 3 cards were created and archived successfully.
-
-### 2026-08-12: Path scan covering only SKILL.md = missing the documents subagents actually execute (found on doc_path_scan's first run)
-Source: doc_path_scan's first run reported 8 old Windows paths; after fixing SKILL.md, a repo-wide grep found 11 more files with 30+ occurrences of an absolute Windows home path (`<path>\...\hermes\...`) under agents/modes/pipeline/*.md (subagents actually execute agents/*.md, and hit these more often than SKILL.md)
-**Root cause**: ① doc_path_scan only globbed "SKILL.md", missing agents/modes/pipeline ② the subagent execution documents matter more than SKILL.md (all the search commands live in agents/*.md)
-**Fix**: ① doc_path_scan extended to scan all .md (SKILL.md + agents + modes + pipeline) + scripts/*.py|*.sh, deduplicated per file ② replacement rules: `<path>` (an absolute Windows home path) → `<hermes-home>/skills/X/scripts` (no workspace layer exists), `...\wiki\main\sources\` → `<hermes-home>/wiki/main/sources/` ③ verify-merge-coi.py default path changed from the old Windows path → `os.path.expanduser("<hermes-home>/tmp/...")` ④ exclusion list extended (git-bash/MSYS/cmd.exe/Startup/junction/PowerShell/New-Item/system-account/measured/quotes, etc.) to stop false positives on explanatory prose, judged with ±2 lines of context both ways
-**Lessons**:
-- Scan coverage must include "the files subagents actually execute" (agents/modes/pipeline/scripts), not just the main SKILL.md
-- After fixing, verify in reverse: temporarily inject an old path and confirm the scanner catches it (so over-filtering does not let real problems slip through)
-- Mind the path mapping: workspace\skills\X is actually skills/X (no workspace layer after migration); do not replace mechanically
-- Regression: all 4 scripts green + the temporary-file injection test passed
-
-### 2026-08-12: Auditing "exists" is not "works" - tool health needs a real probe (fixing the self-healing gap at the root)
-Source: the owner asked "are the collection skills usable" → measurement found legal database's syntax broken and sherlock missing a package - the DO pipeline's Scout had hit this (log: legal database-mcp search → unknown command) but silently degraded to web_search, and nobody noticed
-**Root cause**: ① Scout tool failures degraded silently with no feedback ② the audit only checked script existence, not correctness (legal database existed but its syntax was wrong; sherlock existed but was missing a package)
-**Solution**: `<hermes-home>/scripts/tool_health_check.py` (actually invokes 9 tools, verifying "it works" not "it exists") → wired into skill_health_check 4.7 → runs automatically in the daily audit
-**Lessons**:
-- Self-healing = the audit can catch "a tool is broken" (functional level), not just "a file is gone" (existence level)
-- Tool failures must have a feedback loop (collect in _lessons.json, alarm in the audit, self-repair)
-- Fix pattern: measure to find it → locate the syntax/dependency issue → fix the skill document → verify green → deposit
-
-### 2026-08-12: Skill evolution management - reflexive anti-inflation (three-way split + monitoring + cleanup)
-Source: 58 skills + 52 accumulated LEARNED entries (deep-research 12 / msf 9 / writing-convention 8) → the owner asked "how to manage evolution and avoid inflation"
-**Three-way split (ask yourself before writing a LEARNED entry)**:
-| Type | Handling | Example |
-|:-----|:-----|:-----|
-| Version history (vX.X update) | ❌ Do not write LEARNED - goes in the changelog | "what changed in v4.2" |
-| One-off fix (code already changed) | ❌ Done at fix time - no deposition | PATH bug fixed |
-| Reusable lesson (will recur) | ✅ Write - with date + review point | owner correction patterns |
-**Monitoring**: `python3 <hermes-home>/scripts/skill_health_check.py` (LEARNED>8 / overlap / stale / oversized backup → alarm; already wired in as step 4 of the audit cron)
-**Cleanup**: 2026-08-12, 52 → 33 entries (-36%, removed version bookkeeping, kept real lessons); backup at `<hermes-home>/backups/skills-learned-20260812/`
-**Lessons**: subtraction is also evolution; the guardrail exists rather than good intentions (the curator backup ballooning to 56.7MB was an unmonitored blind spot that the health check caught)
-**Audit suggestion**: the daily audit can add a "script test status" item (pytest all green = guardrail in place)
-
-### 2026-08-12: Script tests put in place (OPL/last30days research - a real capability gain)
-Source: deep-study of last30days-skill (57.9k stars, 190 tests) → our scripts had zero tests, the biggest gap → pytest put in place
-Current state: `<hermes-home>/scripts/.testvenv/bin/python -m pytest tests/` = **32 passed** (3 files)
-Coverage: validate_pipeline_json (10 cases, schema validation) / audit_hook (17 cases, security guardrail) / heartbeat (5 cases, platform adaptation)
-**Real value**: the audit_hook tests immediately exposed 2 security holes (Remove-Item with a Windows path not intercepted + echo redirection writing into the user area not intercepted) → fixed (2026-08-12 patch)
-**Lessons**:
-- Tests are not ceremony - they caught two real interception gaps: "the read-only check did not consider redirection writes" and "the Windows path regex was missing"
-- Adding tests to critical scripts = a guardrail-style improvement (prevents regression, does not inflate)
-- How to run: `.testvenv/bin/python -m pytest tests/ -q` (venv created with uv, pytest 9.1.1)
-**Audit suggestion**: the daily audit can add a "script test status" item (pytest all green = guardrail in place)
+> 📁 The 27 historical entries in this section have been archived → `references/learned-patterns-archive.md`
 
 
-### 2026-08-10: cron no_agent scripts share the same PATH defect (the third victim)
-Source: the capability radar cron still failed on manual trigger (heartbeat.py "unavailable: Tavily, legal database, IMA") - fine in the main session, failing under cron.
-Root cause: the cron no_agent environment PATH = `/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin`, **missing `~/.local/bin`** (where legal database-mcp lives) → subprocess.run raises FileNotFoundError.
-Scripts already hit: ① weekly_backup.sh (8/9) ② cleanup_temp.py (8/10) ③ heartbeat.py (8/10) ④ memory-consolidation.py with old Windows paths (8/10).
-**Lesson: every script (.py/.sh) invoked by cron no_agent must self-check at the top whether PATH is completed**:
-```python
-os.environ['PATH'] = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:' + os.path.expanduser('~/.local/bin') + ':' + os.environ.get('PATH', '')
-```
-**Verification method**: `env -i HOME=<home> python3 script.py` (empty environment simulating cron) - not a plain python3 run.
-**Audit blind spot**: the heartbeats check in audit_collect.py tested with the main-session PATH and could not detect cron environment problems - an empty environment is required. Audit improvement: add empty-environment verification to the heartbeats check.
-
-### 2026-08-10: When the audit mechanism already covers it, adding a rule in the main session = inflation trap
-Source: the owner corrected "the daily audit already checks against SOLO755, which already includes Evolve" - the main session wanted to add a "lesson summary" step to the audit cron, when solo-audit already contained MEV audit (Evolve: lesson not converted ⚠️) + the learning loop (guardrail deposition after a fix).
-Lessons:
-- **Before adding a rule, grep whether an existing skill/script already covers it** - the "MEV audit" section of solo-audit v6.8 already checks Evolve (lesson not converted ⚠️), and the audit scope already includes the "learning loop"
-- The main session's understanding of the audit-layer mechanism was superficial - when skill_view returns a compressed summary, you must read_file the full text before concluding
-- Correct action: the audit prompt needs no new step, only a guarantee that the existing Evolve mechanism is **actually executed** (rather than documented but never run)
-- Deposited as a general rule: **"three questions before adding a mechanism" ① does an existing skill cover it? ② does it violate the five principles? ③ what is the minimal implementation? Add only if all pass**
+---
