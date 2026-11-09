@@ -4,8 +4,9 @@ An audit agent that checks whether a working AI-agent fleet obeys the rules its 
 routes violations back to the layer that can fix them, and verifies that the guardrails it relies on
 actually block things — instead of trusting documentation that says they do.
 
-This repository documents the audit layer and the four specialist agents it supervises.
-English documents are the public reference; the internal operational spec is maintained in Chinese.
+This repository is the English edition of the audit layer and of the four specialist agents it
+supervises. The Chinese originals — including the statutory texts, which are not translated because a
+translated statute is a commentary rather than the statute — are archived under `legacy/zh/`.
 
 ## Why this exists
 
@@ -98,26 +99,29 @@ service.
 ## Layout
 
 ```
-SKILL.md                        audit agent spec, Chinese, v6.9 (legacy snapshot)
-skills/solo-audit/SKILL.md      audit agent spec, Chinese, v5.0.0 (older snapshot)
-skills/solo-audit/SKILL.en.md   audit agent spec, English, v6.13.0 (current)
-docs/solo-audit-v6.13.0-en.md   full audit specification, English, v6.13.0
-docs/solo-audit-skill-en.md     same as SKILL.en.md, kept for direct linking
-docs/four-specialists-en.md     CT/IO/CD/PD pipeline specification
-references/                     audit criteria, metrics, incident patterns (Chinese)
+README.md                       this file
+SKILL.md                        audit skill, English, v6.13.0
+AUDIT_LEARNINGS.md              incident log and the rules distilled from it
+docs/                           full specification, skill edition, specialist pipeline
+references/                     criteria, metrics, guardrails, incident patterns
+plugins/                        plugin registry and dispatch contract
+artifacts/                      system overview
+memory/                         standing knowledge compilation
+skills/solo/                    governance skill package (authority / capability / audit)
+skills/solo-audit/              audit skill, English edition
 scripts/                        collection and dispatch helpers
+legacy/zh/                      Chinese originals and untranslated subject-matter packages
 ```
 
-### Versions in this repository
+### Versions
 
 | Document | Version | Status |
 |---|---|---|
-| `skills/solo-audit/SKILL.en.md`, `docs/solo-audit-v6.13.0-en.md` | 6.13.0 | **current** |
-| `SKILL.md` (Chinese) | 6.9 | legacy — kept for history, superseded |
-| `skills/solo-audit/SKILL.md` (Chinese) | 5.0.0 | legacy — earliest snapshot |
+| `SKILL.md`, `docs/solo-audit-v6.13.0-en.md`, `skills/solo-audit/SKILL.en.md` | 6.13.0 | **current** |
+| `legacy/zh/SKILL.md` | 6.9 | superseded, archived |
+| `legacy/zh/skills/solo-audit/SKILL.md` | 5.0.0 | first snapshot, archived |
 
-The Chinese files are historical records and are not maintained. Where they disagree with the 6.13.0
-specification, the specification governs.
+Everything in the main tree is English and current. `legacy/zh/` is a record, not a reference.
 
 ## Scope of publication
 
